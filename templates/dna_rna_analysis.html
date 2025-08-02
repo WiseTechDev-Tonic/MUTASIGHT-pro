@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}DNA/RNA Analysis - MutaSight AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-gradient">
+                <i data-feather="git-branch" class="me-2"></i>DNA/RNA Sequence Analysis
+            </h2>
+            <p class="text-muted">Analyze nucleotide sequences, predict secondary structures, and perform genomic research.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Input Panel -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-custom">
+                <div class="card-header">
+                    <h5 class="mb-0"><i data-feather="edit-3" class="me-2"></i>Sequence Input</h5>
+                </div>
+                <div class="card-body">
+                    <form id="sequenceAnalysisForm">
+                        <div class="mb-3">
+                            <label for="analysisName" class="form-label">Analysis Name</label>
+                            <input type="text" class="form-control" id="analysisName" placeholder="Enter analysis name...">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sequenceType" class="form-label">Sequence Type</label>
+                            <select class="form-select" id="sequenceType">
+                                <option value="dna">DNA Sequence</option>
+                                <option value="rna">RNA Sequence</option>
+                                <option value="protein">Protein Sequence</option>
+                                <option value="gene">Gene Sequence</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sequenceInput" class="form-label">Nucleotide/Amino Acid Sequence</label>
+                            <textarea class="form-control" id="sequenceInput" rows="6" placeholder="Enter your sequence (FASTA format or raw sequence)..."></textarea>
+                            <div class="form-text">
+                                <small id="sequenceHelp">
+                                    Example DNA: ATCGATCGATCG... or >sequence_name\nATCGATCG...
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="analysisOptions" class="form-label">Analysis Options</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="secondaryStructure" checked>
+                                <label class="form-check-label" for="secondaryStructure">
+                                    Predict Secondary Structure
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="geneAnnotation" checked>
+                                <label class="form-check-label" for="geneAnnotation">
+                                    Gene Annotation
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="mutationAnalysis">
+                                <label class="form-check-label" for="mutationAnalysis">
+                                    Mutation Impact Analysis
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="conservationAnalysis">
+                                <label class="form-check-label" for="conservationAnalysis">
+                                    Conservation Analysis
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i data-feather="play" class="me-2"></i>Analyze Sequence
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Quick Examples -->
+            <div class="card mt-3 shadow-custom">
+                <div class="card-header">
+                    <h6 class="mb-0"><i data-feather="bookmark" class="me-2"></i>Example Sequences</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Sample Sequences:</strong>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary mb-1 w-100" onclick="loadExampleSequence('dna', 'ATGCGATCGATCGATCGATCGATCGATCGATCG', 'Example DNA Sequence')">DNA Example</button>
+                    <button class="btn btn-sm btn-outline-primary mb-1 w-100" onclick="loadExampleSequence('rna', 'AUGCGAUCGAUCGAUCGAUCGAUCGAUCGAUCG', 'Example RNA Sequence')">RNA Example</button>
+                    <button class="btn btn-sm btn-outline-primary mb-1 w-100" onclick="loadExampleSequence('protein', 'MKLLILTLLPVLLCSFCRLVKKYTQPELLQTEEWLK', 'Example Protein')">Protein Example</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Panel -->
+        <div class="col-md-8">
+            <div class="card shadow-custom">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i data-feather="activity" class="me-2"></i>Analysis Results</h5>
+                    <button class="btn btn-sm btn-outline-primary" id="generateSequenceReportBtn" style="display: none;">
+                        <i data-feather="file-text" class="me-1"></i>Generate Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="sequenceAnalysisResults" class="text-center text-muted py-5" style="display: block;">
+                        <i data-feather="git-branch" class="mb-3" style="width: 48px; height: 48px;"></i>
+                        <p>Enter a nucleotide or protein sequence to begin analysis</p>
+                    </div>
+                    
+                    <div id="sequenceLoadingSpinner" style="display: none;" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Analyzing sequence...</span>
+                        </div>
+                        <p class="mt-2">Analyzing sequence structure and properties...</p>
+                    </div>
+                    
+                    <div id="sequenceResultsContent" style="display: none;">
+                        <!-- Sequence Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6><i data-feather="info" class="me-2"></i>Sequence Properties</h6>
+                                <table class="table table-sm table-dark scientific-table">
+                                    <tbody id="sequenceProperties">
+                                        <!-- Properties will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i data-feather="pie-chart" class="me-2"></i>Composition Analysis</h6>
+                                <div id="compositionChart" style="height: 200px;">
+                                    <canvas id="nucleotideComposition"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 3D Structure Visualization -->
+                        <div class="mb-4">
+                            <h6><i data-feather="cube" class="me-2"></i>3D Structure Visualization</h6>
+                            <div id="dnaViewer3D" class="dna-helix-viewer">
+                                <div class="viewer-controls">
+                                    <button class="btn btn-sm" onclick="toggleRotation()">
+                                        <i data-feather="rotate-cw"></i>
+                                    </button>
+                                    <button class="btn btn-sm" onclick="resetView()">
+                                        <i data-feather="home"></i>
+                                    </button>
+                                    <button class="btn btn-sm" onclick="toggleWireframe()">
+                                        <i data-feather="grid"></i>
+                                    </button>
+                                </div>
+                                <div class="base-pair-info" id="basePairInfo">
+                                    Hover over the structure to see base pair information
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Secondary Structure -->
+                        <div class="mb-4" id="secondaryStructureSection" style="display: none;">
+                            <h6><i data-feather="layers" class="me-2"></i>Secondary Structure Prediction</h6>
+                            <div id="secondaryStructureViewer" class="p-3 bg-dark border rounded">
+                                <div id="structureDisplay"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gene Annotation -->
+                        <div class="mb-4" id="geneAnnotationSection" style="display: none;">
+                            <h6><i data-feather="tag" class="me-2"></i>Gene Annotation</h6>
+                            <div id="geneAnnotationResults" class="alert alert-info">
+                                <!-- Gene annotation results will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Conservation Analysis -->
+                        <div class="mb-4" id="conservationSection" style="display: none;">
+                            <h6><i data-feather="shield" class="me-2"></i>Conservation Analysis</h6>
+                            <div id="conservationResults">
+                                <!-- Conservation analysis will be displayed here -->
+                            </div>
+                        </div>
+                        
+                        <!-- AI Recommendations -->
+                        <div class="mb-4">
+                            <h6><i data-feather="zap" class="me-2"></i>AI-Powered Insights</h6>
+                            <div id="aiRecommendations" class="alert alert-success">
+                                <!-- AI recommendations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dna_rna_viewer.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('sequenceAnalysisForm');
+    const sequenceType = document.getElementById('sequenceType');
+    const sequenceHelp = document.getElementById('sequenceHelp');
+    
+    // Update help text based on sequence type
+    sequenceType.addEventListener('change', function() {
+        const type = this.value;
+        switch(type) {
+            case 'dna':
+                sequenceHelp.textContent = 'Example DNA: ATCGATCGATCG... or >sequence_name\\nATCGATCG...';
+                break;
+            case 'rna':
+                sequenceHelp.textContent = 'Example RNA: AUCGAUCGAUCG... or >sequence_name\\nAUCGAUCG...';
+                break;
+            case 'protein':
+                sequenceHelp.textContent = 'Example Protein: MKLLILTLLPVL... or >protein_name\\nMKLLILT...';
+                break;
+            case 'gene':
+                sequenceHelp.textContent = 'Example Gene: Complete gene sequence with UTRs and coding regions';
+                break;
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        analyzeSequence();
+    });
+});
+
+function loadExampleSequence(type, sequence, name) {
+    document.getElementById('sequenceInput').value = sequence;
+    document.getElementById('analysisName').value = name;
+    document.getElementById('sequenceType').value = type;
+    
+    // Trigger change event to update help text
+    document.getElementById('sequenceType').dispatchEvent(new Event('change'));
+}
+
+function analyzeSequence() {
+    const sequenceInput = document.getElementById('sequenceInput').value.trim();
+    const sequenceType = document.getElementById('sequenceType').value;
+    const analysisName = document.getElementById('analysisName').value.trim();
+    
+    const options = {
+        secondaryStructure: document.getElementById('secondaryStructure').checked,
+        geneAnnotation: document.getElementById('geneAnnotation').checked,
+        mutationAnalysis: document.getElementById('mutationAnalysis').checked,
+        conservationAnalysis: document.getElementById('conservationAnalysis').checked
+    };
+    
+    if (!sequenceInput) {
+        alert('Please enter a sequence');
+        return;
+    }
+    
+    // Show loading state
+    document.getElementById('sequenceAnalysisResults').style.display = 'none';
+    document.getElementById('sequenceResultsContent').style.display = 'none';
+    document.getElementById('sequenceLoadingSpinner').style.display = 'block';
+    
+    // Make API call
+    fetch('/analyze-dna-rna', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            sequence: sequenceInput,
+            sequence_type: sequenceType,
+            name: analysisName || `${sequenceType.toUpperCase()}_Analysis_${new Date().toISOString().slice(0,19).replace(/[-:]/g, '')}`,
+            options: options
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('sequenceLoadingSpinner').style.display = 'none';
+        
+        if (data.success) {
+            displaySequenceResults(data.data);
+            document.getElementById('generateSequenceReportBtn').style.display = 'block';
+        } else {
+            alert('Error: ' + data.error);
+            document.getElementById('sequenceAnalysisResults').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('sequenceLoadingSpinner').style.display = 'none';
+        document.getElementById('sequenceAnalysisResults').style.display = 'block';
+        alert('An error occurred during sequence analysis');
+    });
+}
+
+function displaySequenceResults(data) {
+    // Populate sequence properties
+    const sequenceProps = document.getElementById('sequenceProperties');
+    sequenceProps.innerHTML = `
+        <tr><td><strong>Sequence Length:</strong></td><td>${data.length || 'N/A'}</td></tr>
+        <tr><td><strong>Sequence Type:</strong></td><td>${data.sequence_type || 'N/A'}</td></tr>
+        <tr><td><strong>GC Content:</strong></td><td>${data.gc_content || 'N/A'}%</td></tr>
+        <tr><td><strong>Molecular Weight:</strong></td><td>${data.molecular_weight || 'N/A'} Da</td></tr>
+        <tr><td><strong>Melting Temperature:</strong></td><td>${data.melting_temp || 'N/A'}°C</td></tr>
+    `;
+    
+    // Create composition chart
+    if (data.composition) {
+        createCompositionChart(data.composition);
+    }
+    
+    // Initialize 3D DNA/RNA viewer
+    if (data.sequence_type === 'dna' || data.sequence_type === 'rna') {
+        initializeDNAViewer(data.sequence, data.sequence_type);
+    }
+    
+    // Show/hide analysis sections based on options
+    if (data.secondary_structure) {
+        document.getElementById('secondaryStructureSection').style.display = 'block';
+        displaySecondaryStructure(data.secondary_structure);
+    }
+    
+    if (data.gene_annotation) {
+        document.getElementById('geneAnnotationSection').style.display = 'block';
+        displayGeneAnnotation(data.gene_annotation);
+    }
+    
+    if (data.conservation_analysis) {
+        document.getElementById('conservationSection').style.display = 'block';
+        displayConservationAnalysis(data.conservation_analysis);
+    }
+    
+    // AI-powered insights
+    const aiRecommendations = document.getElementById('aiRecommendations');
+    let recommendations = [];
+    
+    if (data.gc_content && data.gc_content > 60) {
+        recommendations.push('High GC content detected. This may affect PCR amplification and sequencing.');
+    }
+    if (data.length && data.length < 100) {
+        recommendations.push('Short sequence detected. Consider longer sequences for more accurate analysis.');
+    }
+    if (data.sequence_type === 'dna' && data.open_reading_frames) {
+        recommendations.push(`Found ${data.open_reading_frames.length} potential open reading frames.`);
+    }
+    
+    if (recommendations.length === 0) {
+        recommendations.push('Sequence analysis completed successfully. All parameters within normal ranges.');
+    }
+    
+    aiRecommendations.innerHTML = recommendations.map(rec => `<li>${rec}</li>`).join('');
+    
+    document.getElementById('sequenceResultsContent').style.display = 'block';
+}
+
+function createCompositionChart(composition) {
+    const ctx = document.getElementById('nucleotideComposition').getContext('2d');
+    
+    const labels = Object.keys(composition);
+    const values = Object.values(composition);
+    const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1'];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: '#343a40',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function displaySecondaryStructure(structure) {
+    const structureDisplay = document.getElementById('structureDisplay');
+    structureDisplay.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Predicted Structure:</h6>
+                <pre class="text-light" style="font-family: 'Courier New', monospace; font-size: 0.9rem;">${structure.structure_notation || 'Structure prediction not available'}</pre>
+            </div>
+            <div class="col-md-6">
+                <h6>Stability Metrics:</h6>
+                <table class="table table-sm table-dark">
+                    <tbody>
+                        <tr><td>Free Energy:</td><td>${structure.free_energy || 'N/A'} kcal/mol</td></tr>
+                        <tr><td>Confidence Score:</td><td>${structure.confidence || 'N/A'}%</td></tr>
+                        <tr><td>Structure Type:</td><td>${structure.structure_type || 'N/A'}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function displayGeneAnnotation(annotation) {
+    const annotationResults = document.getElementById('geneAnnotationResults');
+    annotationResults.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Predicted Features:</strong>
+                <ul class="mt-2">
+                    ${annotation.features ? annotation.features.map(f => `<li><strong>${f.type}:</strong> ${f.location} (${f.description})</li>`).join('') : '<li>No features detected</li>'}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <strong>Functional Predictions:</strong>
+                <ul class="mt-2">
+                    ${annotation.functions ? annotation.functions.map(f => `<li>${f}</li>`).join('') : '<li>No functional predictions available</li>'}
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function displayConservationAnalysis(conservation) {
+    const conservationResults = document.getElementById('conservationResults');
+    conservationResults.innerHTML = `
+        <div class="alert alert-info">
+            <strong>Conservation Score:</strong> ${conservation.score || 'N/A'}/100<br>
+            <strong>Highly Conserved Regions:</strong> ${conservation.conserved_regions || 0}<br>
+            <strong>Analysis Summary:</strong> ${conservation.summary || 'Conservation analysis completed'}
+        </div>
+    `;
+}
+
+// 3D Viewer control functions
+let rotationEnabled = true;
+let scene, camera, renderer, dnaModel;
+
+function toggleRotation() {
+    rotationEnabled = !rotationEnabled;
+}
+
+function resetView() {
+    if (camera) {
+        camera.position.set(0, 0, 5);
+        camera.lookAt(0, 0, 0);
+    }
+}
+
+function toggleWireframe() {
+    // Toggle wireframe mode for DNA model
+    if (dnaModel) {
+        dnaModel.material.wireframe = !dnaModel.material.wireframe;
+    }
+}
+
+// Generate report functionality
+document.getElementById('generateSequenceReportBtn').addEventListener('click', function() {
+    alert('DNA/RNA sequence analysis report generation functionality would be implemented here');
+});
+</script>
+{% endblock %}

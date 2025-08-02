@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +7,28 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <!-- Three.js for 3D molecular visualization -->
+    <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     {% block head %}{% endblock %}
 </head>
-<body>
+<body class="bg-dark text-light">
     {% if current_user.is_authenticated %}
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #1a1a1a;">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
-                <i class="fas fa-flask me-2"></i>MutaSight AI
+            <a class="navbar-brand text-gradient fw-bold" href="{{ url_for('main.dashboard') }}">
+                <i data-feather="flask" class="me-2"></i><span class="text-primary">Muta</span>Sight
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -36,32 +39,42 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            <i data-feather="home" class="me-1"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.molecular_analysis') }}">
-                            <i class="fas fa-atom me-1"></i>Molecular Analysis
+                            <i data-feather="hexagon" class="me-1"></i>Molecular Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dna_rna_analysis') }}">
+                            <i data-feather="git-branch" class="me-1"></i>DNA/RNA Analysis
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.drug_database') }}">
-                            <i class="fas fa-database me-1"></i>Drug Database
+                            <i data-feather="database" class="me-1"></i>Drug Database
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.excipients') }}">
-                            <i class="fas fa-pills me-1"></i>Excipients
+                            <i data-feather="tablet" class="me-1"></i>Excipients
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.projects') }}">
-                            <i class="fas fa-project-diagram me-1"></i>Projects
+                            <i data-feather="folder" class="me-1"></i>Projects
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.reports') }}">
-                            <i class="fas fa-file-alt me-1"></i>Reports
+                            <i data-feather="file-text" class="me-1"></i>Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.chat') }}">
+                            <i data-feather="message-circle" class="me-1"></i>AI Assistant
                         </a>
                     </li>
                 </ul>
@@ -69,13 +82,13 @@
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                            <i data-feather="user" class="me-1"></i>{{ current_user.username }}
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#"><i data-feather="settings" class="me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i data-feather="sliders" class="me-2"></i>Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i data-feather="log-out" class="me-2"></i>Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -99,13 +112,13 @@
     {% endwith %}
     
     <!-- Main Content -->
-    <main class="{% if current_user.is_authenticated %}container-fluid mt-4{% endif %}">
+    <main class="{% if current_user.is_authenticated %}container-fluid mt-5 pt-4{% endif %}">
         {% block content %}{% endblock %}
     </main>
     
     <!-- Footer -->
     {% if current_user.is_authenticated %}
-    <footer class="bg-light text-center text-muted py-3 mt-5">
+    <footer class="bg-dark text-center text-muted py-3 mt-5" style="border-top: 1px solid #343a40;">
         <div class="container">
             <p>&copy; 2025 MutaSight AI Drug Discovery Platform. All rights reserved.</p>
         </div>
@@ -114,6 +127,9 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Initialize Feather Icons -->
+    <script>feather.replace()</script>
     
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

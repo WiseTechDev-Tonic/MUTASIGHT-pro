@@ -7,15 +7,15 @@
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient-primary text-white">
-                <div class="card-body">
+            <div class="card shadow-custom" style="background: linear-gradient(135deg, #007bff, #17a2b8); border: none;">
+                <div class="card-body text-white">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h2 class="mb-2">Welcome back, {{ current_user.first_name or current_user.username }}!</h2>
-                            <p class="mb-0">Ready to discover and analyze molecular structures for drug development.</p>
+                            <h2 class="mb-2 fw-bold">Welcome back, {{ current_user.first_name or current_user.username }}!</h2>
+                            <p class="mb-0">Ready to discover and analyze molecular structures with advanced 3D visualization and AI-powered insights.</p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <i class="fas fa-flask fa-4x opacity-50"></i>
+                            <i data-feather="hexagon" style="width: 64px; height: 64px; opacity: 0.7;"></i>
                         </div>
                     </div>
                 </div>
@@ -26,15 +26,15 @@
     <!-- Quick Stats -->
     <div class="row mb-4">
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
+            <div class="card shadow-hover" style="background: linear-gradient(135deg, #17a2b8, #138496); border: none;">
+                <div class="card-body text-white">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="mb-0">{{ user_projects|length }}</h4>
+                            <h4 class="mb-0 fw-bold">{{ user_projects|length }}</h4>
                             <p class="mb-0">My Projects</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-project-diagram fa-2x"></i>
+                            <i data-feather="folder" style="width: 32px; height: 32px;"></i>
                         </div>
                     </div>
                 </div>
@@ -42,15 +42,15 @@
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
+            <div class="card shadow-hover" style="background: linear-gradient(135deg, #28a745, #20a540); border: none;">
+                <div class="card-body text-white">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="mb-0">{{ member_projects|length }}</h4>
+                            <h4 class="mb-0 fw-bold">{{ member_projects|length }}</h4>
                             <p class="mb-0">Collaborations</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-users fa-2x"></i>
+                            <i data-feather="users" style="width: 32px; height: 32px;"></i>
                         </div>
                     </div>
                 </div>
@@ -58,15 +58,15 @@
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
+            <div class="card shadow-hover" style="background: linear-gradient(135deg, #ffc107, #e0a800); border: none;">
+                <div class="card-body text-white">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="mb-0">{{ recent_analyses|length }}</h4>
+                            <h4 class="mb-0 fw-bold">{{ recent_analyses|length }}</h4>
                             <p class="mb-0">Recent Analyses</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-atom fa-2x"></i>
+                            <i data-feather="hexagon" style="width: 32px; height: 32px;"></i>
                         </div>
                     </div>
                 </div>
@@ -74,15 +74,15 @@
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
+            <div class="card shadow-hover" style="background: linear-gradient(135deg, #dc3545, #c82333); border: none;">
+                <div class="card-body text-white">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="mb-0">24/7</h4>
+                            <h4 class="mb-0 fw-bold">24/7</h4>
                             <p class="mb-0">AI Assistant</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-robot fa-2x"></i>
+                            <i data-feather="cpu" style="width: 32px; height: 32px;"></i>
                         </div>
                     </div>
                 </div>
@@ -94,45 +94,53 @@
     <div class="row">
         <!-- Quick Actions -->
         <div class="col-md-4 mb-4">
-            <div class="card">
+            <div class="card shadow-custom">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i data-feather="zap" class="me-2"></i>Quick Actions</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="{{ url_for('main.molecular_analysis') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-atom me-2"></i>Analyze Molecule
+                            <i data-feather="hexagon" class="me-2"></i>Molecular Analysis
                         </a>
-                        <a href="{{ url_for('main.drug_database') }}" class="btn btn-outline-success">
-                            <i class="fas fa-search me-2"></i>Search Drugs
+                        <a href="{{ url_for('main.dna_rna_analysis') }}" class="btn btn-outline-success">
+                            <i data-feather="git-branch" class="me-2"></i>DNA/RNA Analysis
                         </a>
-                        <a href="{{ url_for('main.excipients') }}" class="btn btn-outline-info">
-                            <i class="fas fa-pills me-2"></i>Find Excipients
+                        <a href="{{ url_for('main.drug_database') }}" class="btn btn-outline-info">
+                            <i data-feather="database" class="me-2"></i>Drug Database
+                        </a>
+                        <a href="{{ url_for('main.excipients') }}" class="btn btn-outline-warning">
+                            <i data-feather="tablet" class="me-2"></i>Excipients
                         </a>
                         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
-                            <i class="fas fa-plus me-2"></i>New Project
+                            <i data-feather="plus" class="me-2"></i>New Project
                         </button>
                     </div>
                 </div>
             </div>
             
             <!-- AI Assistant Preview -->
-            <div class="card mt-3">
+            <div class="card mt-3 shadow-custom">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Assistant</h5>
+                    <h5 class="mb-0"><i data-feather="message-circle" class="me-2"></i>AI Assistant</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-3">Ask me anything about drug discovery!</p>
+                    <p class="text-muted mb-3">Ask me anything about drug discovery and molecular analysis!</p>
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="Type your question..." id="quickQuestion">
                         <button class="btn btn-primary" type="button" onclick="askQuickQuestion()">
-                            <i class="fas fa-paper-plane"></i>
+                            <i data-feather="send"></i>
                         </button>
                     </div>
                     <div id="quickAnswer" class="mt-2" style="display: none;">
                         <div class="alert alert-info mb-0">
                             <small id="answerText"></small>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{{ url_for('main.chat') }}" class="btn btn-sm btn-outline-primary w-100">
+                            <i data-feather="external-link" class="me-1"></i>Open Full Chat
+                        </a>
                     </div>
                 </div>
             </div>
