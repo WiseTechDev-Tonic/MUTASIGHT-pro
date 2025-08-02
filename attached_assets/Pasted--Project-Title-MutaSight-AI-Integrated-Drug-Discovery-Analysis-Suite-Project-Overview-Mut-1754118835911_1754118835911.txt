@@ -1,0 +1,93 @@
+🧠 Project Title: MutaSight AI – Integrated Drug Discovery & Analysis Suite
+📌 Project Overview
+
+MutaSight AI is an AI-driven local+cloud hybrid platform tailored for biopharma researchers, R&D scientists, and drug formulation teams. It provides automation and intelligence across the full drug discovery pipeline — from mutation analysis, compound identification, structure visualization, to formulation recommendations and regulatory documentation.
+⚙️ Key Modules & Features
+1. SMILES/INCHI Interpretation Module
+
+    Input: User types or uploads SMILES, InChI, IUPAC name, or molecular image.
+
+    Output: Interactive 2D/3D molecule visualization (via RDKit + Py3Dmol).
+
+    Auto-suggestions with NLP autocomplete.
+
+2. Mutation Engine
+
+    AI-powered mutation prediction and analysis (site-specific).
+
+    Chain mutation analysis for proteins, DNA, RNA.
+
+    Suggests potential chemical analogs or bioisosteres.
+
+3. Drug Formulation Recommendation System
+
+    Suggests active ingredients, excipients, binders, solubilizers.
+
+    Considers pKa, logP, melting point, hygroscopicity, etc.
+
+    Offers multiple formulation routes (e.g., tablet, injection, patch).
+
+    Embedded decision-tree logic + ML refinement.
+
+4. Excipient Library
+
+    Supports local org-specific and global database.
+
+    Intelligent filtering based on compatibility, reactivity, toxicity.
+
+5. Scientific Paper Retriever & Summarizer
+
+    Auto-fetches papers (from open sources or local repo).
+
+    Extracts relevant info using LLM summarizer.
+
+    GPT-based custom Q&A chatbot on top of paper database.
+
+    Offline and self-updating options supported.
+
+6. Report/Document Generator
+
+    Auto-generates:
+
+        Formulation PDFs
+
+        Regulatory summaries (USFDA/EMA-like)
+
+        Custom company-format documentation
+
+    Users can define company-specific templates (DOCX/PDF/LaTeX).
+
+7. Patent & Existing Drug Checker
+
+    Checks input molecule/formula against existing patents (via DrugBank or local mirror).
+
+    Flags conflicts or similar drugs on market.
+
+8. Chatbot Assistant (LLM-based)
+
+    Domain-trained chatbot handles:
+
+        Mutation queries
+
+        Formulation guidance
+
+        Chemistry & mechanism questions
+
+        Paper summarization
+
+    Backend: Embedding-based retrieval (FAISS/ChromaDB + OpenAI or local models)
+
+🏗️ Technical Architecture
+Backend:
+
+    Language: Python (FastAPI + Flask hybrid)
+
+    Core Libraries: RDKit, Pandas, NumPy, Scikit-learn, PyTorch, LangChain
+
+    LLMs: OpenAI GPT-4/LLama3/Claude for custom tasks (switchable via config)
+
+    Embedding Engine: SentenceTransformers (BioBERT/Custom), stored in FAISS or ChromaDB
+
+    Database: PostgreSQL (main DB), SQLite (embedded), or organization-specified DBMS
+
+    File Support: CSV, PDF, Excel, MOL, PNG, SMILES

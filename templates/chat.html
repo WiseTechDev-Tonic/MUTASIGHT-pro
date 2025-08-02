@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Project Chat{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Project Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-project-diagram me-2"></i>{{ project.name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if project.description %}
+                        <p class="text-muted mb-3">{{ project.description }}</p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>Project Info</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Owner:</strong> {{ project.owner.username }}</li>
+                            <li><strong>Status:</strong> <span class="badge bg-success">{{ project.status.title() }}</span></li>
+                            <li><strong>Created:</strong> {{ project.created_at.strftime('%Y-%m-%d') }}</li>
+                            <li><strong>Members:</strong> {{ project.members|length }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-users me-2"></i>Team Members</h6>
+                        <div class="member-list">
+                            {% for member in project.members %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                        {{ member.user.username[0].upper() }}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ member.user.username }}</div>
+                                        <small class="text-muted">{{ member.role.title() }}</small>
+                                    </div>
+                                    <div class="online-status online" title="Online"></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-atom me-2"></i>Analyses</h6>
+                        {% if analyses %}
+                            <div class="list-group list-group-flush">
+                                {% for analysis in analyses[:5] %}
+                                    <div class="list-group-item px-0 py-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-bold">{{ analysis.name }}</div>
+                                                {% if analysis.molecular_formula %}
+                                                    <small class="text-muted">{{ analysis.molecular_formula }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">{{ analysis.created_at.strftime('%m/%d') }}</small>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% if analyses|length > 5 %}
+                                    <div class="list-group-item px-0 py-2 text-center">
+                                        <small class="text-muted">+{{ analyses|length - 5 }} more analyses</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">No analyses yet</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.molecular_analysis') }}?project_id={{ project.id }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>New Analysis
+                        </a>
+                        <button class="btn btn-sm btn-outline-success" onclick="generateProjectReport()">
+                            <i class="fas fa-file-alt me-1"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="col-md-9">
+            <div class="card h-100 chat-container">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comments me-2"></i>Project Discussion
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary active" id="chatTab">
+                                <i class="fas fa-comments me-1"></i>Chat
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="aiTab">
+                                <i class="fas fa-robot me-1"></i>AI Assistant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages Area -->
+                <div class="card-body chat-messages" id="chatMessages">
+                    <div class="messages-container">
+                        {% for message in messages %}
+                            <div class="message-item {{ 'ai-message' if message.message_type == 'bot' else 'user-message' }}" 
+                                 data-message-type="{{ message.message_type }}">
+                                <div class="message-header">
+                                    <div class="message-avatar">
+                                        {% if message.message_type == 'bot' %}
+                                            <i class="fas fa-robot"></i>
+                                        {% else %}
+                                            {{ message.author.username[0].upper() }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="message-info">
+                                        <span class="message-author">
+                                            {% if message.message_type == 'bot' %}
+                                                MutaSight AI Assistant
+                                            {% else %}
+                                                {{ message.author.username }}
+                                            {% endif %}
+                                        </span>
+                                        <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
+                                    </div>
+                                </div>
+                                <div class="message-content">
+                                    {{ message.content }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="card-footer">
+                    <div id="chatInputArea">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="messageInput" 
+                                   placeholder="Type your message..." autocomplete="off">
+                            <button class="btn btn-primary" type="button" id="sendMessage">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="aiInputArea" style="display: none;">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="aiQuestion" 
+                                   placeholder="Ask AI about drug discovery, formulation, or molecular analysis..." 
+                                   autocomplete="off">
+                            <button class="btn btn-success" type="button" id="askAI">
+                                <i class="fas fa-robot"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            <small>Try asking: "What is the mechanism of action for NSAIDs?" or "How do I calculate LogP?"</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Typing Indicator -->
+<div id="typingIndicator" class="typing-indicator" style="display: none;">
+    <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <span class="typing-text">AI is thinking...</span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>
+// Initialize chat functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const projectId = {{ project.id }};
+    initializeChat(projectId);
+    
+    // Tab switching functionality
+    const chatTab = document.getElementById('chatTab');
+    const aiTab = document.getElementById('aiTab');
+    const chatInputArea = document.getElementById('chatInputArea');
+    const aiInputArea = document.getElementById('aiInputArea');
+    
+    chatTab.addEventListener('click', function() {
+        this.classList.add('active');
+        aiTab.classList.remove('active');
+        chatInputArea.style.display = 'block';
+        aiInputArea.style.display = 'none';
+    });
+    
+    aiTab.addEventListener('click', function() {
+        this.classList.add('active');
+        chatTab.classList.remove('active');
+        chatInputArea.style.display = 'none';
+        aiInputArea.style.display = 'block';
+    });
+    
+    // Auto-scroll to bottom
+    scrollToBottom();
+});
+
+function scrollToBottom() {
+    const messagesContainer = document.querySelector('.messages-container');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function generateProjectReport() {
+    const projectData = {
+        project_info: {
+            name: '{{ project.name }}',
+            description: '{{ project.description }}',
+            start_date: '{{ project.created_at.strftime("%Y-%m-%d") }}',
+            members: [{% for member in project.members %}'{{ member.user.username }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            status: '{{ project.status }}'
+        },
+        activities: [
+            'Molecular analysis conducted',
+            'Team collaboration sessions',
+            'AI-assisted research queries',
+            'Project milestones achieved'
+        ]
+    };
+    
+    fetch('/generate-report', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            report_type: 'project_summary',
+            title: '{{ project.name }} - Project Summary Report',
+            content: projectData,
+            project_id: {{ project.id }}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.open(data.download_url, '_blank');
+        } else {
+            alert('Error generating report: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while generating the report');
+    });
+}
+</script>
+{% endblock %}

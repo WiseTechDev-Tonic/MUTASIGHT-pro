@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Drug Database - MutaSight AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-database me-2"></i>Drug Database</h2>
+            <p class="text-muted">Search and explore comprehensive drug information for research and development.</p>
+        </div>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('main.drug_database') }}">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">Search Drugs</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           value="{{ search_query }}" placeholder="Drug name, generic name...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="class" class="form-label">Therapeutic Class</label>
+                                <select class="form-select" id="class" name="class">
+                                    <option value="">All Classes</option>
+                                    {% for cls in therapeutic_classes %}
+                                        <option value="{{ cls }}" {% if cls == selected_class %}selected{% endif %}>
+                                            {{ cls }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Search
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <a href="{{ url_for('main.drug_database') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Clear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-pills me-2"></i>Drug Information
+                        <span class="badge bg-primary ms-2">{{ drugs|length }} results</span>
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" id="cardView">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="tableView">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if drugs %}
+                        <!-- Card View -->
+                        <div id="cardViewContainer" class="row">
+                            {% for drug in drugs %}
+                            <div class="col-lg-6 col-xl-4 mb-4">
+                                <div class="card h-100 drug-card">
+                                    <div class="card-header">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="mb-0">{{ drug.name }}</h6>
+                                            {% if drug.therapeutic_class %}
+                                                <span class="badge bg-info">{{ drug.therapeutic_class }}</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if drug.generic_name and drug.generic_name != drug.name %}
+                                            <small class="text-muted">{{ drug.generic_name }}</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2 text-sm">
+                                            {% if drug.molecular_formula %}
+                                            <div class="col-12">
+                                                <strong>Formula:</strong> {{ drug.molecular_formula }}
+                                            </div>
+                                            {% endif %}
+                                            {% if drug.molecular_weight %}
+                                            <div class="col-12">
+                                                <strong>MW:</strong> {{ drug.molecular_weight }} g/mol
+                                            </div>
+                                            {% endif %}
+                                            {% if drug.mechanism_of_action %}
+                                            <div class="col-12">
+                                                <strong>Mechanism:</strong> 
+                                                <span class="text-muted">{{ drug.mechanism_of_action[:100] }}{% if drug.mechanism_of_action|length > 100 %}...{% endif %}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="showDrugDetails({{ drug.id }})">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                        {% if drug.smiles %}
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="analyzeMolecule('{{ drug.smiles }}', '{{ drug.name }}')">
+                                            <i class="fas fa-atom me-1"></i>Analyze
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Table View -->
+                        <div id="tableViewContainer" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Drug Name</th>
+                                            <th>Generic Name</th>
+                                            <th>Therapeutic Class</th>
+                                            <th>Formula</th>
+                                            <th>MW (g/mol)</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for drug in drugs %}
+                                        <tr>
+                                            <td><strong>{{ drug.name }}</strong></td>
+                                            <td>{{ drug.generic_name or '-' }}</td>
+                                            <td>
+                                                {% if drug.therapeutic_class %}
+                                                    <span class="badge bg-info">{{ drug.therapeutic_class }}</span>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td><code>{{ drug.molecular_formula or '-' }}</code></td>
+                                            <td>{{ drug.molecular_weight or '-' }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" 
+                                                        onclick="showDrugDetails({{ drug.id }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                {% if drug.smiles %}
+                                                <button class="btn btn-sm btn-outline-success" 
+                                                        onclick="analyzeMolecule('{{ drug.smiles }}', '{{ drug.name }}')">
+                                                    <i class="fas fa-atom"></i>
+                                                </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-search fa-3x mb-3"></i>
+                            <h5>No drugs found</h5>
+                            <p>Try adjusting your search criteria or browse all drugs.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Drug Details Modal -->
+<div class="modal fade" id="drugDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Drug Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="drugDetailsContent">
+                <!-- Drug details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// View toggle functionality
+document.getElementById('cardView').addEventListener('click', function() {
+    document.getElementById('cardViewContainer').style.display = 'block';
+    document.getElementById('tableViewContainer').style.display = 'none';
+    this.classList.add('active');
+    document.getElementById('tableView').classList.remove('active');
+});
+
+document.getElementById('tableView').addEventListener('click', function() {
+    document.getElementById('cardViewContainer').style.display = 'none';
+    document.getElementById('tableViewContainer').style.display = 'block';
+    this.classList.add('active');
+    document.getElementById('cardView').classList.remove('active');
+});
+
+function showDrugDetails(drugId) {
+    // In a real implementation, this would fetch drug details from the server
+    const modal = new bootstrap.Modal(document.getElementById('drugDetailsModal'));
+    document.getElementById('drugDetailsContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading drug details...</p>
+        </div>
+    `;
+    modal.show();
+    
+    // Simulate loading detailed information
+    setTimeout(() => {
+        document.getElementById('drugDetailsContent').innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Detailed drug information would be displayed here, including full mechanism of action, 
+                indications, contraindications, side effects, and dosage forms.
+            </div>
+        `;
+    }, 1000);
+}
+
+function analyzeMolecule(smiles, drugName) {
+    // Redirect to molecular analysis with pre-filled data
+    const url = new URL('{{ url_for("main.molecular_analysis") }}', window.location.origin);
+    url.searchParams.set('smiles', smiles);
+    url.searchParams.set('name', drugName + ' Analysis');
+    window.location.href = url.toString();
+}
+</script>
+{% endblock %}

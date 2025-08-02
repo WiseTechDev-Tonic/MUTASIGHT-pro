@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - MutaSight AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-project-diagram me-2"></i>Projects</h2>
+                    <p class="text-muted">Manage your drug discovery projects and collaborate with team members.</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+                    <i class="fas fa-plus me-2"></i>New Project
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Project Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ user_projects|length }}</h4>
+                            <p class="mb-0">My Projects</p>
+                        </div>
+                        <i class="fas fa-user-crown fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ member_projects|length }}</h4>
+                            <p class="mb-0">Collaborations</p>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ (user_projects + member_projects)|selectattr('status', 'equalto', 'active')|list|length }}</h4>
+                            <p class="mb-0">Active Projects</p>
+                        </div>
+                        <i class="fas fa-play fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ (user_projects + member_projects)|selectattr('status', 'equalto', 'completed')|list|length }}</h4>
+                            <p class="mb-0">Completed</p>
+                        </div>
+                        <i class="fas fa-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- My Projects -->
+    {% if user_projects %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-crown me-2"></i>My Projects</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for project in user_projects %}
+                        <div class="col-lg-6 col-xl-4 mb-3">
+                            <div class="card project-card h-100">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-0">{{ project.name }}</h6>
+                                        <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                            {{ project.status.title() }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    {% if project.description %}
+                                        <p class="text-muted mb-3">{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+                                    {% endif %}
+                                    
+                                    <div class="row text-sm text-muted">
+                                        <div class="col-6">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ project.created_at.strftime('%Y-%m-%d') }}
+                                        </div>
+                                        <div class="col-6">
+                                            <i class="fas fa-users me-1"></i>
+                                            {{ project.members|length }} members
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ url_for('main.project_detail', project_id=project.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Open
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                onclick="editProject({{ project.id }})">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" 
+                                                onclick="manageMembers({{ project.id }})">
+                                            <i class="fas fa-users me-1"></i>Members
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Collaborative Projects -->
+    {% if member_projects %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Collaborative Projects</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for project in member_projects %}
+                        <div class="col-lg-6 col-xl-4 mb-3">
+                            <div class="card project-card h-100">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-0">{{ project.name }}</h6>
+                                        <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                            {{ project.status.title() }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        Owner: {{ project.owner.username }}
+                                    </small>
+                                </div>
+                                <div class="card-body">
+                                    {% if project.description %}
+                                        <p class="text-muted mb-3">{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+                                    {% endif %}
+                                    
+                                    <div class="row text-sm text-muted">
+                                        <div class="col-6">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ project.created_at.strftime('%Y-%m-%d') }}
+                                        </div>
+                                        <div class="col-6">
+                                            <i class="fas fa-users me-1"></i>
+                                            {{ project.members|length }} members
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="{{ url_for('main.project_detail', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="fas fa-eye me-1"></i>Open Project
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Empty State -->
+    {% if not user_projects and not member_projects %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-project-diagram fa-4x text-muted mb-4"></i>
+                    <h4>No Projects Yet</h4>
+                    <p class="text-muted mb-4">Create your first project to start collaborating with your team on drug discovery research.</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+                        <i class="fas fa-plus me-2"></i>Create Your First Project
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- New Project Modal -->
+<div class="modal fade" id="newProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('main.create_project') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="projectName" name="name" required 
+                               placeholder="Enter project name...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="projectDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="projectDescription" name="description" rows="4" 
+                                  placeholder="Describe your project objectives, target compounds, and research goals..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project Type</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="project_type" id="drugDiscovery" value="drug_discovery" checked>
+                                    <label class="form-check-label" for="drugDiscovery">
+                                        <i class="fas fa-flask me-1"></i>Drug Discovery
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="project_type" id="formulation" value="formulation">
+                                    <label class="form-check-label" for="formulation">
+                                        <i class="fas fa-pills me-1"></i>Formulation
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Create Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="editProjectContent">
+                <!-- Edit form will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Members Modal -->
+<div class="modal fade" id="manageMembersModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Project Members</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="manageMembersContent">
+                <!-- Members management will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editProject(projectId) {
+    const modal = new bootstrap.Modal(document.getElementById('editProjectModal'));
+    document.getElementById('editProjectContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading project details...</p>
+        </div>
+    `;
+    modal.show();
+    
+    // Simulate loading project data for editing
+    setTimeout(() => {
+        document.getElementById('editProjectContent').innerHTML = `
+            <form id="editProjectForm">
+                <div class="mb-3">
+                    <label for="editProjectName" class="form-label">Project Name</label>
+                    <input type="text" class="form-control" id="editProjectName" value="Project Name">
+                </div>
+                <div class="mb-3">
+                    <label for="editProjectDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="editProjectDescription" rows="4">Project description...</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="editProjectStatus" class="form-label">Status</label>
+                    <select class="form-select" id="editProjectStatus">
+                        <option value="active">Active</option>
+                        <option value="paused">Paused</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        `;
+    }, 1000);
+}
+
+function manageMembers(projectId) {
+    const modal = new bootstrap.Modal(document.getElementById('manageMembersModal'));
+    document.getElementById('manageMembersContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading project members...</p>
+        </div>
+    `;
+    modal.show();
+    
+    // Simulate loading members data
+    setTimeout(() => {
+        document.getElementById('manageMembersContent').innerHTML = `
+            <div class="mb-3">
+                <label for="addMember" class="form-label">Add Member</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="addMember" placeholder="Enter username or email">
+                    <button class="btn btn-outline-primary" type="button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Current Members</label>
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>John Doe</strong>
+                            <small class="text-muted d-block">john.doe@example.com</small>
+                        </div>
+                        <span class="badge bg-primary">Owner</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Jane Smith</strong>
+                            <small class="text-muted d-block">jane.smith@example.com</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-secondary me-2">Member</span>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        `;
+    }, 1000);
+}
+</script>
+{% endblock %}

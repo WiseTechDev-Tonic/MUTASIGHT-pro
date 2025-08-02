@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Molecular Analysis - MutaSight AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-atom me-2"></i>Molecular Analysis</h2>
+            <p class="text-muted">Analyze molecular structures using SMILES, InChI, or molecular formulas.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Input Panel -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-keyboard me-2"></i>Molecular Input</h5>
+                </div>
+                <div class="card-body">
+                    <form id="analysisForm">
+                        <div class="mb-3">
+                            <label for="analysisName" class="form-label">Analysis Name</label>
+                            <input type="text" class="form-control" id="analysisName" placeholder="Enter analysis name...">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="inputType" class="form-label">Input Type</label>
+                            <select class="form-select" id="inputType">
+                                <option value="smiles">SMILES Notation</option>
+                                <option value="inchi">InChI String</option>
+                                <option value="formula">Molecular Formula</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="molecularInput" class="form-label">Molecular Structure</label>
+                            <textarea class="form-control" id="molecularInput" rows="4" placeholder="Enter SMILES, InChI, or molecular formula..."></textarea>
+                            <div class="form-text">
+                                <small id="inputHelp">
+                                    Example SMILES: CCO (ethanol), CC(=O)O (acetic acid)
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="projectSelect" class="form-label">Associate with Project (Optional)</label>
+                            <select class="form-select" id="projectSelect">
+                                <option value="">Select a project...</option>
+                                <!-- Projects will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Analyze Molecule
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Quick Examples -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Quick Examples</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Common Drugs:</strong>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary mb-1" onclick="loadExample('CCO', 'Ethanol')">Ethanol</button>
+                    <button class="btn btn-sm btn-outline-secondary mb-1" onclick="loadExample('CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', 'Ibuprofen')">Ibuprofen</button>
+                    <button class="btn btn-sm btn-outline-secondary mb-1" onclick="loadExample('CC(=O)NC1=CC=C(C=C1)O', 'Paracetamol')">Paracetamol</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Panel -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Analysis Results</h5>
+                    <button class="btn btn-sm btn-outline-primary" id="generateReportBtn" style="display: none;">
+                        <i class="fas fa-file-pdf me-1"></i>Generate Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="analysisResults" class="text-center text-muted py-5" style="display: block;">
+                        <i class="fas fa-flask fa-3x mb-3"></i>
+                        <p>Enter a molecular structure to begin analysis</p>
+                    </div>
+                    
+                    <div id="loadingSpinner" style="display: none;" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <p class="mt-2">Analyzing molecular structure...</p>
+                    </div>
+                    
+                    <div id="resultsContent" style="display: none;">
+                        <!-- Basic Properties -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-info-circle me-2"></i>Basic Properties</h6>
+                                <table class="table table-sm">
+                                    <tbody id="basicProperties">
+                                        <!-- Properties will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-dna me-2"></i>Structural Features</h6>
+                                <table class="table table-sm">
+                                    <tbody id="structuralFeatures">
+                                        <!-- Features will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 2D Structure Visualization -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-eye me-2"></i>2D Structure</h6>
+                            <div id="structureViewer" class="border rounded p-3 text-center bg-light">
+                                <svg id="molecularStructure" width="400" height="300">
+                                    <!-- SVG content will be generated here -->
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Drug-like Properties -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-pills me-2"></i>Drug-like Properties Assessment</h6>
+                            <div id="drugLikeAssessment">
+                                <!-- Assessment will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Recommendations -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-lightbulb me-2"></i>Recommendations</h6>
+                            <div id="recommendations" class="alert alert-info">
+                                <!-- Recommendations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/molecular_viewer.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('analysisForm');
+    const inputType = document.getElementById('inputType');
+    const inputHelp = document.getElementById('inputHelp');
+    
+    // Update help text based on input type
+    inputType.addEventListener('change', function() {
+        const type = this.value;
+        switch(type) {
+            case 'smiles':
+                inputHelp.textContent = 'Example SMILES: CCO (ethanol), CC(=O)O (acetic acid)';
+                break;
+            case 'inchi':
+                inputHelp.textContent = 'Example InChI: InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3';
+                break;
+            case 'formula':
+                inputHelp.textContent = 'Example Formula: C2H6O, C8H9NO2';
+                break;
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        analyzeMolecule();
+    });
+});
+
+function loadExample(smiles, name) {
+    document.getElementById('molecularInput').value = smiles;
+    document.getElementById('analysisName').value = name + ' Analysis';
+    document.getElementById('inputType').value = 'smiles';
+}
+
+function analyzeMolecule() {
+    const inputValue = document.getElementById('molecularInput').value.trim();
+    const inputType = document.getElementById('inputType').value;
+    const analysisName = document.getElementById('analysisName').value.trim();
+    const projectId = document.getElementById('projectSelect').value;
+    
+    if (!inputValue) {
+        alert('Please enter a molecular structure');
+        return;
+    }
+    
+    // Show loading state
+    document.getElementById('analysisResults').style.display = 'none';
+    document.getElementById('resultsContent').style.display = 'none';
+    document.getElementById('loadingSpinner').style.display = 'block';
+    
+    // Make API call
+    fetch('/analyze-molecule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            input_value: inputValue,
+            input_type: inputType,
+            name: analysisName || `Analysis_${new Date().toISOString().slice(0,19).replace(/[-:]/g, '')}`,
+            project_id: projectId || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('loadingSpinner').style.display = 'none';
+        
+        if (data.success) {
+            displayResults(data.data);
+            document.getElementById('generateReportBtn').style.display = 'block';
+        } else {
+            alert('Error: ' + data.error);
+            document.getElementById('analysisResults').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('analysisResults').style.display = 'block';
+        alert('An error occurred during analysis');
+    });
+}
+
+function displayResults(data) {
+    // Populate basic properties
+    const basicProps = document.getElementById('basicProperties');
+    basicProps.innerHTML = `
+        <tr><td><strong>Molecular Formula:</strong></td><td>${data.molecular_formula || 'N/A'}</td></tr>
+        <tr><td><strong>Molecular Weight:</strong></td><td>${data.molecular_weight || 'N/A'} g/mol</td></tr>
+        <tr><td><strong>Atom Count:</strong></td><td>${data.atom_count || 'N/A'}</td></tr>
+        <tr><td><strong>Estimated LogP:</strong></td><td>${data.estimated_logp || 'N/A'}</td></tr>
+    `;
+    
+    // Populate structural features
+    const structuralFeats = document.getElementById('structuralFeatures');
+    structuralFeats.innerHTML = `
+        <tr><td><strong>Aromatic Rings:</strong></td><td>${data.aromatic_rings || 0}</td></tr>
+        <tr><td><strong>Hydroxyl Groups:</strong></td><td>${data.hydroxyl_groups || 0}</td></tr>
+        <tr><td><strong>Nitrogen Count:</strong></td><td>${data.nitrogen_count || 0}</td></tr>
+        <tr><td><strong>Halogen Count:</strong></td><td>${data.halogen_count || 0}</td></tr>
+    `;
+    
+    // Drug-like assessment
+    const assessment = document.getElementById('drugLikeAssessment');
+    const violations = data.lipinski_violations || 0;
+    const drugLike = data.drug_like;
+    
+    assessment.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="alert ${drugLike ? 'alert-success' : 'alert-warning'}">
+                    <strong>Drug-likeness:</strong> ${drugLike ? 'Good' : 'Poor'}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert ${violations <= 1 ? 'alert-success' : 'alert-danger'}">
+                    <strong>Lipinski Violations:</strong> ${violations}/4
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Generate recommendations
+    const recommendations = document.getElementById('recommendations');
+    let recText = [];
+    
+    if (violations > 1) {
+        recText.push('Consider structural modifications to improve drug-likeness (Lipinski violations > 1)');
+    }
+    if (data.estimated_logp > 5) {
+        recText.push('High lipophilicity may affect solubility and bioavailability');
+    }
+    if (data.molecular_weight > 500) {
+        recText.push('High molecular weight may impact oral bioavailability');
+    }
+    
+    if (recText.length === 0) {
+        recText.push('Molecule shows good drug-like properties');
+        recText.push('Consider further ADMET studies for comprehensive evaluation');
+    }
+    
+    recommendations.innerHTML = recText.map(rec => `<li>${rec}</li>`).join('');
+    
+    // Generate 2D structure
+    if (data.smiles) {
+        generateStructureVisualization(data.smiles);
+    }
+    
+    document.getElementById('resultsContent').style.display = 'block';
+}
+
+function generateStructureVisualization(smiles) {
+    // This is a simplified 2D structure generation
+    // In a real implementation, you would use RDKit or similar library
+    const svg = document.getElementById('molecularStructure');
+    svg.innerHTML = ''; // Clear previous content
+    
+    // Create a simple text representation for now
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', '200');
+    text.setAttribute('y', '150');
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-family', 'monospace');
+    text.setAttribute('font-size', '12');
+    text.textContent = `SMILES: ${smiles}`;
+    
+    svg.appendChild(text);
+    
+    // Add a simple molecular diagram placeholder
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', '50');
+    rect.setAttribute('y', '50');
+    rect.setAttribute('width', '300');
+    rect.setAttribute('height', '200');
+    rect.setAttribute('fill', 'none');
+    rect.setAttribute('stroke', '#ddd');
+    rect.setAttribute('stroke-dasharray', '5,5');
+    
+    svg.appendChild(rect);
+}
+
+// Generate report functionality
+document.getElementById('generateReportBtn').addEventListener('click', function() {
+    // This would generate a PDF report of the analysis
+    alert('Report generation functionality would be implemented here');
+});
+</script>
+{% endblock %}
