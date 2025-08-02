@@ -50,6 +50,14 @@ def dashboard():
                          member_projects=member_projects,
                          recent_analyses=recent_analyses)
 
+@main_bp.route('/molecular-input')
+@login_required
+def molecular_input():
+    """Display molecular input page"""
+    # Get user's projects for the dropdown
+    user_projects = Project.query.filter_by(owner_id=current_user.id).all()
+    return render_template('molecular_input.html', projects=user_projects)
+
 @main_bp.route('/molecular-analysis')
 @login_required
 def molecular_analysis():
@@ -753,3 +761,41 @@ def knowledge_search():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+# Additional Navigation Routes
+@main_bp.route('/research-papers')
+@login_required
+def research_papers():
+    """Research Papers Analysis Page"""
+    return render_template('research_papers.html')
+
+@main_bp.route('/collaboration')
+@login_required
+def collaboration():
+    """Team Collaboration Hub"""
+    # Get user's projects for collaboration
+    user_projects = Project.query.filter_by(owner_id=current_user.id).all()
+    member_projects = Project.query.join(ProjectMember).filter(
+        ProjectMember.user_id == current_user.id,
+        ProjectMember.project_id != Project.id
+    ).all()
+    
+    return render_template('collaboration.html', 
+                         user_projects=user_projects,
+                         member_projects=member_projects)
+
+@main_bp.route('/experiment-tracker')
+@login_required
+def experiment_tracker():
+    """Experiment Tracking and Management"""
+    # Get user's experiments/analyses
+    recent_analyses = MolecularAnalysis.query.filter_by(user_id=current_user.id)\
+        .order_by(MolecularAnalysis.created_at.desc()).all()
+    
+    return render_template('experiment_tracker.html', analyses=recent_analyses)
+
+@main_bp.route('/profile')
+@login_required
+def profile():
+    """User Profile and Settings"""
+    return render_template('profile.html')

@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}MutaSight - AI-Powered Drug Discovery Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title text-gradient fade-in">
+                    Accelerate Drug Discovery with AI
+                </h1>
+                <p class="hero-subtitle slide-up">
+                    MutaSight combines molecular analysis, AI-powered mutations, research paper insights, and collaborative tools to revolutionize pharmaceutical research.
+                </p>
+                <div class="d-flex gap-3 slide-up">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-gradient btn-lg">
+                            <i data-feather="arrow-right" class="me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('molecular_input') }}" class="btn btn-outline-primary btn-lg">
+                            <i data-feather="layers" class="me-2"></i>Analyze Molecule
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-gradient btn-lg">
+                            <i data-feather="user-plus" class="me-2"></i>Get Started
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                            <i data-feather="log-in" class="me-2"></i>Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="molecular-viewer shadow-custom" id="hero-molecular-viewer">
+                    <div class="viewer-controls">
+                        <button class="btn btn-sm btn-secondary reset-view" title="Reset View">
+                            <i data-feather="rotate-ccw"></i>
+                        </button>
+                        <select class="btn btn-sm btn-secondary render-mode">
+                            <option value="ballandstick">Ball & Stick</option>
+                            <option value="spacefill">Space Fill</option>
+                            <option value="wireframe">Wireframe</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-gradient mb-3">Comprehensive Drug Discovery Platform</h2>
+            <p class="lead text-muted">Everything you need for modern pharmaceutical research</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="layers"></i>
+                    </div>
+                    <h5 class="card-title">Multi-Input Support</h5>
+                    <p class="card-text text-muted">
+                        Auto-detect and process SMILES, InChI, PDB files, and peptide sequences with intelligent input suggestions.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="shuffle"></i>
+                    </div>
+                    <h5 class="card-title">AI-Powered Mutations</h5>
+                    <p class="card-text text-muted">
+                        Generate guided, random, or user-defined molecular mutations with AI optimization and scoring.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="eye"></i>
+                    </div>
+                    <h5 class="card-title">3D Visualization</h5>
+                    <p class="card-text text-muted">
+                        Interactive 2D/3D molecular visualization with multiple rendering modes and analysis tools.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <h5 class="card-title">Formulation Prediction</h5>
+                    <p class="card-text text-muted">
+                        Predict optimal drug forms, excipients, and dosage guidelines using machine learning models.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="book-open"></i>
+                    </div>
+                    <h5 class="card-title">Research Paper Analysis</h5>
+                    <p class="card-text text-muted">
+                        AI chatbot analyzes research papers and extracts insights without requiring you to read full texts.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="users"></i>
+                    </div>
+                    <h5 class="card-title">Collaboration Tools</h5>
+                    <p class="card-text text-muted">
+                        Create research groups, share projects, and collaborate with team members in real-time.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="database"></i>
+                    </div>
+                    <h5 class="card-title">Database Integration</h5>
+                    <p class="card-text text-muted">
+                        Search and compare molecules across PubChem, DrugBank, and ChEMBL databases.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="activity"></i>
+                    </div>
+                    <h5 class="card-title">Pathway Simulation</h5>
+                    <p class="card-text text-muted">
+                        Predict biological pathways, protein targets, toxicity, and immune responses.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i data-feather="download"></i>
+                    </div>
+                    <h5 class="card-title">Data Export</h5>
+                    <p class="card-text text-muted">
+                        Export results in multiple formats (JSON, PDF, Excel) for further analysis and reporting.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Section -->
+{% if not current_user.is_authenticated %}
+<section class="py-5 bg-secondary">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h3 class="text-gradient mb-3">Experience the Power of AI-Driven Research</h3>
+                <p class="lead text-muted mb-4">
+                    Join thousands of researchers who are accelerating their drug discovery process with MutaSight's comprehensive platform.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        Auto-detect molecular input types
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        AI-powered molecular analysis and mutations
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        Research paper insights without reading
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        Collaborative research environment
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check-circle" class="text-success me-2"></i>
+                        Complete workflow from structure to synthesis
+                    </li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-gradient btn-lg">
+                    <i data-feather="rocket" class="me-2"></i>Start Your Research Journey
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card text-center p-3">
+                            <h4 class="text-primary mb-1">50+</h4>
+                            <small class="text-muted">Input Formats</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-3">
+                            <h4 class="text-success mb-1">1M+</h4>
+                            <small class="text-muted">Molecules Analyzed</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-3">
+                            <h4 class="text-info mb-1">10K+</h4>
+                            <small class="text-muted">Research Papers</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-3">
+                            <h4 class="text-warning mb-1">95%</h4>
+                            <small class="text-muted">Accuracy Rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+{% if not current_user.is_authenticated %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="text-gradient mb-3">Ready to Transform Your Research?</h2>
+                <p class="lead text-muted mb-4">
+                    Join the future of drug discovery with AI-powered molecular analysis, intelligent research insights, and collaborative tools.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-gradient btn-lg">
+                        <i data-feather="user-plus" class="me-2"></i>Create Account
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                        <i data-feather="log-in" class="me-2"></i>Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize hero molecular viewer with a sample molecule
+    const heroViewer = initializeMolecularViewer('hero-molecular-viewer', 'c1ccccc1');
+    
+    // Add some animation to the hero section
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    });
+    
+    document.querySelectorAll('.feature-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

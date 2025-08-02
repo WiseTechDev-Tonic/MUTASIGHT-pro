@@ -1,0 +1,505 @@
+/* MutaSight Custom Styles */
+
+:root {
+    --mutasight-primary: #0d6efd;
+    --mutasight-secondary: #6c757d;
+    --mutasight-success: #198754;
+    --mutasight-info: #0dcaf0;
+    --mutasight-warning: #ffc107;
+    --mutasight-danger: #dc3545;
+    --mutasight-light: #f8f9fa;
+    --mutasight-dark: #212529;
+}
+
+/* Global Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-brand .text-primary {
+    color: var(--mutasight-primary) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-dark) 0%, var(--bs-secondary) 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+/* Feature Cards */
+.feature-card {
+    transition: all 0.3s ease;
+    height: 100%;
+    border: none;
+    background: var(--bs-dark);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--mutasight-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Molecular Viewer */
+.molecular-viewer {
+    background: var(--bs-dark);
+    border-radius: 10px;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+}
+
+.molecular-viewer canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.viewer-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.viewer-controls .btn {
+    margin: 2px;
+    opacity: 0.8;
+}
+
+.viewer-controls .btn:hover {
+    opacity: 1;
+}
+
+/* Chat Interface */
+.chat-container {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bs-dark);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: var(--mutasight-primary);
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bs-body-bg);
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message .message-content {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    word-wrap: break-word;
+}
+
+.chat-message.user .message-content {
+    background: var(--mutasight-primary);
+    color: white;
+    margin-left: 1rem;
+}
+
+.chat-message.assistant .message-content {
+    background: var(--bs-secondary);
+    color: var(--bs-body-color);
+    margin-right: 1rem;
+}
+
+.chat-input {
+    padding: 1rem;
+    background: var(--bs-dark);
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.chat-input .input-group {
+    background: var(--bs-body-bg);
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.chat-input .form-control {
+    border: none;
+    background: transparent;
+    padding: 0.75rem 1rem;
+}
+
+.chat-input .btn {
+    border: none;
+    border-radius: 0 25px 25px 0;
+}
+
+/* Analysis Results */
+.analysis-card {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.analysis-card .card-header {
+    background: var(--mutasight-primary);
+    color: white;
+    font-weight: 600;
+    border-radius: 10px 10px 0 0;
+}
+
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.property-item {
+    background: var(--bs-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.property-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.property-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--mutasight-info);
+}
+
+/* Mutation Results */
+.mutation-card {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.mutation-card:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
+}
+
+.mutation-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.score-high { color: var(--mutasight-success); }
+.score-medium { color: var(--mutasight-warning); }
+.score-low { color: var(--mutasight-danger); }
+
+/* Input Suggestions */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.suggestion-item:hover {
+    background: var(--mutasight-primary);
+    color: white;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Progress Indicators */
+.progress-ring {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+.progress-ring circle {
+    fill: transparent;
+    stroke: var(--mutasight-primary);
+    stroke-width: 4;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray 0.3s ease;
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Experiment Timeline */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--mutasight-primary);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--mutasight-primary);
+    border: 3px solid var(--bs-body-bg);
+}
+
+/* Paper Cards */
+.paper-card {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.paper-card:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.paper-metadata {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.relevance-score {
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.relevance-high {
+    background: var(--mutasight-success);
+    color: white;
+}
+
+.relevance-medium {
+    background: var(--mutasight-warning);
+    color: var(--bs-dark);
+}
+
+.relevance-low {
+    background: var(--mutasight-danger);
+    color: white;
+}
+
+/* Group Cards */
+.group-card {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    border-color: var(--mutasight-primary);
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--mutasight-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .chat-container {
+        height: 500px;
+    }
+    
+    .property-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Utility Classes */
+.text-gradient {
+    background: linear-gradient(135deg, var(--mutasight-primary), var(--mutasight-info));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.border-gradient {
+    border: 2px solid;
+    border-image: linear-gradient(135deg, var(--mutasight-primary), var(--mutasight-info)) 1;
+}
+
+.shadow-custom {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, var(--mutasight-primary), var(--mutasight-info));
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+    color: white;
+}
+
+/* Form Enhancements */
+.form-floating > .form-control {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+.form-floating > .form-control:focus {
+    border-color: var(--mutasight-primary);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-floating > label {
+    color: var(--bs-secondary);
+}
+
+/* Alert Enhancements */
+.alert {
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.alert-dismissible .btn-close {
+    filter: invert(1);
+}
+
+/* Badge Enhancements */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}

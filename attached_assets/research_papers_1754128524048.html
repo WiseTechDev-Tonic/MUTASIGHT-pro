@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block title %}Research Papers - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-gradient mb-1">
+                <i data-feather="book-open" class="me-2"></i>Research Papers & Literature
+            </h2>
+            <p class="text-muted">Search, analyze, and extract insights from scientific literature</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Search Interface -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="search" class="me-2"></i>Literature Search
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="paper-search-input" class="form-label">Search Query</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="paper-search-input" 
+                                           placeholder="Enter keywords, molecule names, diseases, etc.">
+                                    <button class="btn btn-primary" type="button" id="paper-search-button">
+                                        <i data-feather="search" class="me-2"></i>Search
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    Search across PubMed, arXiv, and other scientific databases
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="searchFilters" class="form-label">Filters</label>
+                                <select class="form-select" id="searchFilters">
+                                    <option value="">All papers</option>
+                                    <option value="recent">Recent (last 2 years)</option>
+                                    <option value="clinical">Clinical trials</option>
+                                    <option value="reviews">Review articles</option>
+                                    <option value="high_impact">High impact journals</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Search Examples -->
+                    <div class="mb-3">
+                        <h6 class="mb-2">
+                            <i data-feather="bookmark" class="me-2"></i>Quick Examples
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-secondary btn-sm search-example" data-query="SARS-CoV-2 drug discovery">
+                                SARS-CoV-2 Drug Discovery
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm search-example" data-query="machine learning molecular property prediction">
+                                ML Molecular Properties
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm search-example" data-query="cancer immunotherapy">
+                                Cancer Immunotherapy
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm search-example" data-query="alzheimer disease drug targets">
+                                Alzheimer's Drug Targets
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="file-text" class="me-2"></i>Search Results
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" id="sortResults" style="width: auto;">
+                            <option value="relevance">Sort by Relevance</option>
+                            <option value="date">Sort by Date</option>
+                            <option value="citations">Sort by Citations</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary" onclick="exportResults()">
+                            <i data-feather="download" class="me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="paper-results">
+                        {% if papers %}
+                            {% for paper in papers %}
+                            <div class="paper-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title">{{ paper.title }}</h6>
+                                    <span class="relevance-score relevance-{{ 'high' if paper.relevance_score > 0.7 else 'medium' if paper.relevance_score > 0.4 else 'low' }}">
+                                        {{ "%.0f"|format((paper.relevance_score or 0) * 100) }}%
+                                    </span>
+                                </div>
+                                <p class="paper-metadata">
+                                    <strong>Authors:</strong> {{ paper.authors|join(', ') if paper.authors else 'Unknown' }}<br>
+                                    <strong>Journal:</strong> {{ paper.journal or paper.source or 'Unknown' }} • 
+                                    <strong>Date:</strong> {{ paper.publication_date or 'Unknown' }}
+                                    {% if paper.doi %} • <strong>DOI:</strong> {{ paper.doi }}{% endif %}
+                                </p>
+                                <p class="card-text">{{ paper.abstract or 'No abstract available.' }}</p>
+                                
+                                {% if paper.keywords %}
+                                <div class="mb-3">
+                                    {% for keyword in paper.keywords %}
+                                    <span class="badge bg-secondary me-1">{{ keyword }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-primary analyze-paper-btn" data-paper-url="{{ paper.url or '#' }}">
+                                        <i data-feather="brain" class="me-1"></i>AI Analysis
+                                    </button>
+                                    {% if paper.url %}
+                                    <a href="{{ paper.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i data-feather="external-link" class="me-1"></i>Read Paper
+                                    </a>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-info" onclick="savePaper('{{ paper.title }}', '{{ paper.url or '' }}')">
+                                        <i data-feather="bookmark" class="me-1"></i>Save
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" onclick="citePaper('{{ paper.title }}', '{{ paper.doi or '' }}')">
+                                        <i data-feather="quote" class="me-1"></i>Cite
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i data-feather="search" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                                <h5 class="text-muted mb-3">Start Your Literature Search</h5>
+                                <p class="text-muted mb-4">Enter keywords to find relevant research papers and get AI-powered insights</p>
+                                <p class="text-muted small">
+                                    <strong>Tip:</strong> Try searching for molecule names, diseases, or research topics
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- AI Paper Assistant -->
+            <div class="card mb-4">
+                <div class="chat-container" id="paper-chatbot" style="height: 400px;">
+                    <div class="chat-header">
+                        <i data-feather="message-circle" class="me-2"></i>
+                        AI Research Assistant
+                    </div>
+                    <div class="chat-messages"></div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ask about research papers...">
+                            <button class="btn btn-primary" type="button">
+                                <i data-feather="send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Insights -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="trending-up" class="me-2"></i>Research Trends
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary">Hot Topics</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-primary">mRNA Vaccines</span>
+                            <span class="badge bg-success">CRISPR</span>
+                            <span class="badge bg-info">AI Drug Discovery</span>
+                            <span class="badge bg-warning">Immunotherapy</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="text-success">Recent Breakthroughs</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-1">• Novel Alzheimer's drug approval</li>
+                            <li class="mb-1">• CAR-T cell therapy advances</li>
+                            <li class="mb-1">• Protein folding predictions</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h6 class="text-info">Funding Trends</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-info" style="width: 75%">AI/ML</div>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" style="width: 60%">Oncology</div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 45%">Rare Diseases</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Papers -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i data-feather="bookmark" class="me-2"></i>Saved Papers
+                    </h6>
+                    <span class="badge bg-primary">3</span>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-start px-0">
+                            <div>
+                                <h6 class="mb-1 small">Machine Learning in Drug Discovery</h6>
+                                <small class="text-muted">Saved 2 days ago</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-start px-0">
+                            <div>
+                                <h6 class="mb-1 small">SARS-CoV-2 Therapeutics</h6>
+                                <small class="text-muted">Saved 1 week ago</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-start px-0">
+                            <div>
+                                <h6 class="mb-1 small">Cancer Immunotherapy Review</h6>
+                                <small class="text-muted">Saved 2 weeks ago</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary">View All Saved</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search History -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="clock" class="me-2"></i>Recent Searches
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="small">alzheimer drug targets</span>
+                            <button class="btn btn-sm btn-outline-secondary search-again" data-query="alzheimer drug targets">
+                                <i data-feather="search"></i>
+                            </button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="small">machine learning QSAR</span>
+                            <button class="btn btn-sm btn-outline-secondary search-again" data-query="machine learning QSAR">
+                                <i data-feather="search"></i>
+                            </button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="small">covid-19 therapeutics</span>
+                            <button class="btn btn-sm btn-outline-secondary search-again" data-query="covid-19 therapeutics">
+                                <i data-feather="search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearSearchHistory()">
+                            <i data-feather="trash-2" class="me-1"></i>Clear History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Paper Analysis Modal -->
+<div class="modal fade" id="paperAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-feather="brain" class="me-2"></i>AI Paper Analysis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="analysis-content">
+                    <div class="text-center py-4">
+                        <span class="loading-spinner me-2"></span>
+                        Analyzing paper content...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="askAboutPaper()">
+                    <i data-feather="message-circle" class="me-2"></i>Ask AI About This Paper
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentPaperUrl = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize paper search
+    window.mutasightPaperSearch = new PaperSearch();
+    
+    // Initialize chatbot for research papers
+    window.mutasightPaperChatbot = new ChatBot('paper-chatbot');
+    
+    // Search examples
+    document.querySelectorAll('.search-example').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const query = this.dataset.query;
+            document.getElementById('paper-search-input').value = query;
+            window.mutasightPaperSearch.searchPapers();
+        });
+    });
+    
+    // Search again buttons
+    document.querySelectorAll('.search-again').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const query = this.dataset.query;
+            document.getElementById('paper-search-input').value = query;
+            window.mutasightPaperSearch.searchPapers();
+        });
+    });
+    
+    // Paper analysis buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('analyze-paper-btn')) {
+            const paperUrl = e.target.dataset.paperUrl;
+            analyzePaper(paperUrl);
+        }
+    });
+    
+    // Sort results
+    document.getElementById('sortResults').addEventListener('change', function() {
+        sortSearchResults(this.value);
+    });
+    
+    // Welcome message for paper chatbot
+    setTimeout(() => {
+        if (window.mutasightPaperChatbot) {
+            window.mutasightPaperChatbot.addMessage('assistant', 
+                'I can help you find and analyze research papers! Try asking me about specific topics, molecules, or research questions.');
+        }
+    }, 1000);
+});
+
+function analyzePaper(paperUrl) {
+    currentPaperUrl = paperUrl;
+    const modal = new bootstrap.Modal(document.getElementById('paperAnalysisModal'));
+    modal.show();
+    
+    // Simulate paper analysis
+    setTimeout(() => {
+        const analysisContent = document.getElementById('analysis-content');
+        analysisContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">Key Findings</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i data-feather="arrow-right" class="text-primary me-2"></i>Novel drug target identified</li>
+                        <li class="mb-2"><i data-feather="arrow-right" class="text-primary me-2"></i>Significant efficacy improvement shown</li>
+                        <li class="mb-2"><i data-feather="arrow-right" class="text-primary me-2"></i>Minimal side effects observed</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-success mb-3">Clinical Relevance</h6>
+                    <div class="mb-2">
+                        <label class="form-label small">Relevance Score</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 85%">85%</div>
+                        </div>
+                    </div>
+                    <p class="text-muted small">High clinical relevance with potential for Phase II trials</p>
+                </div>
+            </div>
+            <hr>
+            <h6 class="text-info mb-3">AI Summary</h6>
+            <p class="text-muted">This study presents a comprehensive analysis of a novel therapeutic approach with promising results in preclinical models. The findings suggest significant potential for clinical translation with minimal safety concerns.</p>
+            <h6 class="text-warning mb-3">Molecules Mentioned</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-secondary">Compound A</span>
+                <span class="badge bg-secondary">Protein X</span>
+                <span class="badge bg-secondary">Target Y</span>
+            </div>
+        `;
+        feather.replace();
+    }, 2000);
+}
+
+function askAboutPaper() {
+    if (window.mutasightPaperChatbot && currentPaperUrl) {
+        bootstrap.Modal.getInstance(document.getElementById('paperAnalysisModal')).hide();
+        window.mutasightPaperChatbot.inputField.value = `Can you tell me more about the paper I just analyzed: ${currentPaperUrl}`;
+        window.mutasightPaperChatbot.sendMessage();
+    }
+}
+
+function savePaper(title, url) {
+    // Simulate saving paper
+    MutaSight.showNotification(`Paper "${title}" saved to your library!`, 'success');
+}
+
+function citePaper(title, doi) {
+    const citation = `${title}${doi ? '. DOI: ' + doi : ''}`;
+    MutaSight.copyToClipboard(citation);
+    MutaSight.showNotification('Citation copied to clipboard!', 'success');
+}
+
+function exportResults() {
+    // Simulate exporting search results
+    const results = {
+        searchQuery: document.getElementById('paper-search-input').value,
+        resultsCount: document.querySelectorAll('.paper-card').length,
+        exportDate: new Date().toISOString()
+    };
+    
+    MutaSight.exportData(results, 'paper_search_results', 'json');
+}
+
+function sortSearchResults(sortBy) {
+    const resultsContainer = document.getElementById('paper-results');
+    const paperCards = Array.from(resultsContainer.querySelectorAll('.paper-card'));
+    
+    paperCards.sort((a, b) => {
+        switch (sortBy) {
+            case 'date':
+                // Sort by date (newest first)
+                const dateA = new Date(a.querySelector('.paper-metadata').textContent.match(/Date: ([\d-]+)/)?.[1] || '1970-01-01');
+                const dateB = new Date(b.querySelector('.paper-metadata').textContent.match(/Date: ([\d-]+)/)?.[1] || '1970-01-01');
+                return dateB - dateA;
+            case 'citations':
+                // Sort by citations (simulated)
+                return Math.random() - 0.5;
+            default: // relevance
+                const relevanceA = parseFloat(a.querySelector('.relevance-score').textContent);
+                const relevanceB = parseFloat(b.querySelector('.relevance-score').textContent);
+                return relevanceB - relevanceA;
+        }
+    });
+    
+    // Clear and re-append sorted cards
+    resultsContainer.innerHTML = '';
+    paperCards.forEach(card => resultsContainer.appendChild(card));
+}
+
+function clearSearchHistory() {
+    if (confirm('Are you sure you want to clear your search history?')) {
+        MutaSight.showNotification('Search history cleared!', 'success');
+        // Simulate clearing history
+        const historyItems = document.querySelectorAll('.list-group-item');
+        historyItems.forEach(item => {
+            if (item.querySelector('.search-again')) {
+                item.style.display = 'none';
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

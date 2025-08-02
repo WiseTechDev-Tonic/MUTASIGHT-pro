@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-gradient mb-1">Welcome back, {{ current_user.first_name or current_user.username }}!</h2>
+                    <p class="text-muted">Ready to advance your drug discovery research?</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('molecular_input') }}" class="btn btn-gradient">
+                        <i data-feather="plus" class="me-2"></i>New Analysis
+                    </a>
+                    <button class="btn btn-outline-primary" onclick="window.mutasightChatbot?.clearChat()">
+                        <i data-feather="message-circle" class="me-2"></i>AI Assistant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="zap" class="me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('molecular_input') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <i data-feather="layers" class="mb-2"></i>
+                                <span>Analyze Molecule</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('research_papers') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <i data-feather="book-open" class="mb-2"></i>
+                                <span>Search Papers</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('collaboration') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <i data-feather="users" class="mb-2"></i>
+                                <span>Collaborate</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('experiment_tracker') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <i data-feather="activity" class="mb-2"></i>
+                                <span>Track Experiments</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Projects -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="folder" class="me-2"></i>Recent Projects
+                    </h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                        <div class="row g-3">
+                            {% for project in recent_projects %}
+                            <div class="col-md-6">
+                                <div class="card bg-secondary h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title">{{ project.name }}</h6>
+                                            <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                                {{ project.status.title() }}
+                                            </span>
+                                        </div>
+                                        <p class="card-text text-muted small">{{ project.description[:100] }}...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ project.updated_at.strftime('%Y-%m-%d') }}</small>
+                                            <a href="#" class="btn btn-sm btn-primary">Open</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="folder-plus" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No projects yet</h6>
+                            <p class="text-muted">Start by creating your first project or analyzing a molecule.</p>
+                            <a href="{{ url_for('molecular_input') }}" class="btn btn-primary">
+                                <i data-feather="plus" class="me-2"></i>Create Project
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Experiments -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="activity" class="me-2"></i>Recent Experiments
+                    </h5>
+                    <a href="{{ url_for('experiment_tracker') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_experiments %}
+                        <div class="timeline">
+                            {% for experiment in recent_experiments %}
+                            <div class="timeline-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ experiment.name }}</h6>
+                                        <p class="text-muted small mb-1">{{ experiment.description[:80] }}...</p>
+                                        <small class="text-muted">{{ experiment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if experiment.status == 'completed' else 'warning' }}">
+                                        {{ experiment.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="beaker" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No experiments yet</h6>
+                            <p class="text-muted">Start your first experiment by analyzing a molecular structure.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- AI Assistant Chat -->
+            <div class="card mb-4">
+                <div class="chat-container" id="chatbot-container">
+                    <div class="chat-header">
+                        <i data-feather="message-circle" class="me-2"></i>
+                        AI Research Assistant
+                    </div>
+                    <div class="chat-messages"></div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ask me about drug discovery...">
+                            <button class="btn btn-primary" type="button">
+                                <i data-feather="send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Groups -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i data-feather="users" class="me-2"></i>Your Groups
+                    </h6>
+                    <a href="{{ url_for('collaboration') }}" class="btn btn-sm btn-outline-primary">Manage</a>
+                </div>
+                <div class="card-body">
+                    {% if user_groups %}
+                        {% for group in user_groups %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="member-avatar me-3">
+                                {{ group.name[0].upper() }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ group.name }}</h6>
+                                <small class="text-muted">{{ group.memberships|length }} members</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <small class="text-muted">No groups yet</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="bar-chart-2" class="me-2"></i>Your Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <h4 class="text-primary mb-1">{{ recent_projects|length }}</h4>
+                                <small class="text-muted">Active Projects</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <h4 class="text-success mb-1">{{ recent_experiments|length }}</h4>
+                                <small class="text-muted">Experiments</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <h4 class="text-info mb-1">{{ user_groups|length }}</h4>
+                                <small class="text-muted">Collaborations</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <h4 class="text-warning mb-1">{{ (recent_experiments|selectattr('status', 'equalto', 'completed')|list)|length }}</h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize feather icons after dynamic content
+    feather.replace();
+    
+    // Add hover effects to project cards
+    document.querySelectorAll('.card.bg-secondary').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Show welcome notification for new users
+    if (!localStorage.getItem('welcomed_' + '{{ current_user.id }}')) {
+        setTimeout(() => {
+            MutaSight.showNotification(
+                'Welcome to MutaSight! Start by analyzing your first molecule or exploring research papers.',
+                'info'
+            );
+            localStorage.setItem('welcomed_' + '{{ current_user.id }}', 'true');
+        }, 1000);
+    }
+});
+</script>
+{% endblock %}

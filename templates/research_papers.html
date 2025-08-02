@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Research Papers - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-gradient mb-1">
+                <i data-feather="book-open" class="me-2"></i>Research Papers Analysis
+            </h2>
+            <p class="text-muted mb-4">Analyze scientific papers and extract drug discovery insights</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upload/Input Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="upload" class="me-2"></i>Paper Analysis Input
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Input Method</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="input-method" id="upload-file" checked>
+                            <label class="btn btn-outline-primary" for="upload-file">
+                                <i data-feather="upload" class="me-2"></i>Upload PDF
+                            </label>
+                            <input type="radio" class="btn-check" name="input-method" id="paste-text">
+                            <label class="btn btn-outline-primary" for="paste-text">
+                                <i data-feather="edit-3" class="me-2"></i>Paste Text
+                            </label>
+                            <input type="radio" class="btn-check" name="input-method" id="url-input">
+                            <label class="btn btn-outline-primary" for="url-input">
+                                <i data-feather="link" class="me-2"></i>URL/DOI
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div id="upload-section" class="input-section">
+                        <div class="upload-area" id="upload-dropzone">
+                            <div class="text-center py-5">
+                                <i data-feather="file-text" style="width: 48px; height: 48px;" class="text-muted mb-3"></i>
+                                <h6>Drop PDF files here or click to browse</h6>
+                                <p class="text-muted small">Maximum file size: 10MB</p>
+                                <input type="file" id="file-input" class="d-none" accept=".pdf,.txt" multiple>
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file-input').click()">
+                                    <i data-feather="folder" class="me-2"></i>Choose Files
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div id="text-section" class="input-section" style="display: none;">
+                        <label for="paper-text" class="form-label">Research Paper Text</label>
+                        <textarea class="form-control" id="paper-text" rows="10" 
+                                placeholder="Paste your research paper content here..."></textarea>
+                    </div>
+
+                    <!-- URL Input -->
+                    <div id="url-section" class="input-section" style="display: none;">
+                        <label for="paper-url" class="form-label">Paper URL or DOI</label>
+                        <input type="url" class="form-control" id="paper-url" 
+                               placeholder="https://doi.org/... or https://pubmed.ncbi.nlm.nih.gov/...">
+                        <div class="form-text">
+                            Supported sources: PubMed, arXiv, DOI links, and direct PDF URLs
+                        </div>
+                    </div>
+
+                    <!-- Analysis Options -->
+                    <div class="mt-4">
+                        <h6>Analysis Options</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="extract-compounds" checked>
+                                    <label class="form-check-label" for="extract-compounds">
+                                        Extract Molecular Compounds
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="extract-methods" checked>
+                                    <label class="form-check-label" for="extract-methods">
+                                        Identify Research Methods
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="extract-findings" checked>
+                                    <label class="form-check-label" for="extract-findings">
+                                        Summarize Key Findings
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="drug-targets">
+                                    <label class="form-check-label" for="drug-targets">
+                                        Identify Drug Targets
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="safety-data">
+                                    <label class="form-check-label" for="safety-data">
+                                        Extract Safety Data
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="generate-insights">
+                                    <label class="form-check-label" for="generate-insights">
+                                        Generate AI Insights
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="button" class="btn btn-outline-secondary me-md-2">
+                            <i data-feather="x" class="me-2"></i>Clear
+                        </button>
+                        <button type="button" class="btn btn-gradient" id="analyze-paper-btn">
+                            <i data-feather="cpu" class="me-2"></i>Analyze Paper
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card shadow-custom" id="results-section" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="trending-up" class="me-2"></i>Analysis Results
+                    </h5>
+                </div>
+                <div class="card-body" id="results-content">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Recent Papers -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="clock" class="me-2"></i>Recent Analyses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item p-0 border-0 mb-2">
+                            <div class="card bg-secondary">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title mb-1">Aspirin Cardioprotection Study</h6>
+                                    <p class="card-text small text-muted mb-2">
+                                        Analyzed 2 hours ago
+                                    </p>
+                                    <div class="d-flex gap-1">
+                                        <span class="badge bg-primary">Drug Discovery</span>
+                                        <span class="badge bg-success">Completed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item p-0 border-0 mb-2">
+                            <div class="card bg-secondary">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title mb-1">Novel Antibiotics Research</h6>
+                                    <p class="card-text small text-muted mb-2">
+                                        Analyzed yesterday
+                                    </p>
+                                    <div class="d-flex gap-1">
+                                        <span class="badge bg-info">Antimicrobial</span>
+                                        <span class="badge bg-success">Completed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="bar-chart-2" class="me-2"></i>Analysis Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h4 class="text-primary mb-1">47</h4>
+                                <small class="text-muted">Papers Analyzed</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h4 class="text-success mb-1">123</h4>
+                                <small class="text-muted">Compounds Found</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-info mb-1">89</h4>
+                                <small class="text-muted">Key Insights</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-warning mb-1">12</h4>
+                                <small class="text-muted">Drug Targets</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="lightbulb" class="me-2"></i>Analysis Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i data-feather="check" class="text-success me-2" style="width: 16px; height: 16px;"></i>
+                            Use high-quality PDF files for best results
+                        </li>
+                        <li class="mb-2">
+                            <i data-feather="check" class="text-success me-2" style="width: 16px; height: 16px;"></i>
+                            Include abstract and methods sections
+                        </li>
+                        <li class="mb-2">
+                            <i data-feather="check" class="text-success me-2" style="width: 16px; height: 16px;"></i>
+                            Enable all analysis options for comprehensive insights
+                        </li>
+                        <li>
+                            <i data-feather="check" class="text-success me-2" style="width: 16px; height: 16px;"></i>
+                            Combine multiple papers for comparative analysis
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+    
+    // Input method switching
+    const inputMethods = document.querySelectorAll('input[name="input-method"]');
+    const sections = {
+        'upload-file': 'upload-section',
+        'paste-text': 'text-section',
+        'url-input': 'url-section'
+    };
+    
+    inputMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            Object.values(sections).forEach(section => {
+                document.getElementById(section).style.display = 'none';
+            });
+            document.getElementById(sections[this.id]).style.display = 'block';
+        });
+    });
+    
+    // File upload handling
+    const dropzone = document.getElementById('upload-dropzone');
+    const fileInput = document.getElementById('file-input');
+    
+    dropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    dropzone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+    
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+    
+    function handleFiles(files) {
+        for (let file of files) {
+            if (file.type === 'application/pdf' || file.type === 'text/plain') {
+                console.log('File uploaded:', file.name);
+                // Add file to upload queue
+            } else {
+                alert('Only PDF and text files are supported');
+            }
+        }
+    }
+    
+    // Analysis button
+    document.getElementById('analyze-paper-btn').addEventListener('click', function() {
+        const activeMethod = document.querySelector('input[name="input-method"]:checked').id;
+        let inputData = null;
+        
+        switch(activeMethod) {
+            case 'upload-file':
+                inputData = fileInput.files;
+                break;
+            case 'paste-text':
+                inputData = document.getElementById('paper-text').value;
+                break;
+            case 'url-input':
+                inputData = document.getElementById('paper-url').value;
+                break;
+        }
+        
+        if (!inputData || (activeMethod === 'upload-file' && inputData.length === 0) || 
+            (activeMethod !== 'upload-file' && !inputData.trim())) {
+            alert('Please provide input before analyzing');
+            return;
+        }
+        
+        // Show loading state
+        this.innerHTML = '<i data-feather="loader" class="me-2"></i>Analyzing...';
+        this.disabled = true;
+        feather.replace();
+        
+        // Simulate analysis
+        setTimeout(() => {
+            showResults();
+            this.innerHTML = '<i data-feather="cpu" class="me-2"></i>Analyze Paper';
+            this.disabled = false;
+            feather.replace();
+        }, 3000);
+    });
+    
+    function showResults() {
+        const resultsSection = document.getElementById('results-section');
+        const resultsContent = document.getElementById('results-content');
+        
+        resultsContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h6><i data-feather="layers" class="me-2"></i>Extracted Compounds</h6>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Aspirin (C9H8O4)
+                            <span class="badge bg-primary rounded-pill">Mentioned 15x</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Ibuprofen (C13H18O2)
+                            <span class="badge bg-primary rounded-pill">Mentioned 8x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h6><i data-feather="target" class="me-2"></i>Key Findings</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">• Significant cardioprotective effects observed</li>
+                        <li class="mb-2">• Dosage optimization critical for efficacy</li>
+                        <li class="mb-2">• Minimal side effects in study population</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="alert alert-info">
+                <i data-feather="info" class="me-2"></i>
+                Analysis complete! Found 12 molecular compounds and 8 key research insights.
+            </div>
+        `;
+        
+        resultsSection.style.display = 'block';
+        feather.replace();
+    }
+});
+</script>
+{% endblock %}

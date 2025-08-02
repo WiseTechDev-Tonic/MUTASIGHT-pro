@@ -1,0 +1,581 @@
+{% extends "base.html" %}
+
+{% block title %}Experiment Tracker - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-gradient mb-1">
+                        <i data-feather="activity" class="me-2"></i>Experiment Tracker
+                    </h2>
+                    <p class="text-muted">Monitor and manage your drug discovery experiments</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="exportAllExperiments()">
+                        <i data-feather="download" class="me-2"></i>Export All
+                    </button>
+                    <a href="{{ url_for('molecular_input') }}" class="btn btn-gradient">
+                        <i data-feather="plus" class="me-2"></i>New Experiment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Experiment Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-primary mb-1">{{ experiments|length }}</h4>
+                            <small class="text-muted">Total Experiments</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-success mb-1">{{ experiments|selectattr('status', 'equalto', 'completed')|list|length }}</h4>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-warning mb-1">{{ experiments|selectattr('status', 'equalto', 'running')|list|length }}</h4>
+                            <small class="text-muted">Running</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-danger mb-1">{{ experiments|selectattr('status', 'equalto', 'failed')|list|length }}</h4>
+                            <small class="text-muted">Failed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment List -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="list" class="me-2"></i>Your Experiments
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" id="statusFilter" style="width: auto;" onchange="filterExperiments()">
+                            <option value="">All Status</option>
+                            <option value="running">Running</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="typeFilter" style="width: auto;" onchange="filterExperiments()">
+                            <option value="">All Types</option>
+                            <option value="analysis">Analysis</option>
+                            <option value="mutation">Mutation</option>
+                            <option value="formulation">Formulation</option>
+                            <option value="synthesis">Synthesis</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if experiments %}
+                        <div id="experiments-list">
+                            {% for experiment in experiments %}
+                            <div class="experiment-item card mb-3 bg-secondary" data-status="{{ experiment.status }}" data-type="{{ experiment.experiment_type }}">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start">
+                                                <div class="me-3">
+                                                    <i data-feather="{{ 'check-circle' if experiment.status == 'completed' else 'play-circle' if experiment.status == 'running' else 'x-circle' }}" 
+                                                       class="text-{{ 'success' if experiment.status == 'completed' else 'warning' if experiment.status == 'running' else 'danger' }}"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">{{ experiment.name }}</h6>
+                                                    <p class="text-muted small mb-2">{{ experiment.description[:100] }}{% if experiment.description and experiment.description|length > 100 %}...{% endif %}</p>
+                                                    <div class="d-flex gap-2">
+                                                        <span class="badge bg-{{ 'success' if experiment.status == 'completed' else 'warning' if experiment.status == 'running' else 'danger' }}">
+                                                            {{ experiment.status.title() }}
+                                                        </span>
+                                                        <span class="badge bg-primary">{{ experiment.experiment_type.title() }}</span>
+                                                        {% if experiment.molecule %}
+                                                        <span class="badge bg-info">{{ experiment.molecule.name or 'Unknown Molecule' }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Created</small>
+                                            <span class="fw-bold">{{ experiment.created_at.strftime('%Y-%m-%d') }}</span>
+                                            <small class="text-muted d-block">{{ experiment.created_at.strftime('%H:%M') }}</small>
+                                            {% if experiment.completed_at %}
+                                            <small class="text-muted d-block mt-1">Completed</small>
+                                            <span class="fw-bold">{{ experiment.completed_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewExperiment({{ experiment.id }})">
+                                                    <i data-feather="eye" class="me-1"></i>View
+                                                </button>
+                                                {% if experiment.status == 'completed' %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        <i data-feather="download" class="me-1"></i>Export
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=experiment.id, format='json') }}">
+                                                            <i data-feather="file-text" class="me-2"></i>JSON
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=experiment.id, format='pdf') }}">
+                                                            <i data-feather="file" class="me-2"></i>PDF
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=experiment.id, format='excel') }}">
+                                                            <i data-feather="grid" class="me-2"></i>Excel
+                                                        </a></li>
+                                                    </ul>
+                                                </div>
+                                                {% endif %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                                        <i data-feather="more-horizontal"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="#" onclick="duplicateExperiment({{ experiment.id }})">
+                                                            <i data-feather="copy" class="me-2"></i>Duplicate
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="shareExperiment({{ experiment.id }})">
+                                                            <i data-feather="share-2" class="me-2"></i>Share
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="addToProject({{ experiment.id }})">
+                                                            <i data-feather="folder-plus" class="me-2"></i>Add to Project
+                                                        </a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteExperiment({{ experiment.id }})">
+                                                            <i data-feather="trash-2" class="me-2"></i>Delete
+                                                        </a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i data-feather="beaker" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                            <h5 class="text-muted mb-3">No Experiments Yet</h5>
+                            <p class="text-muted mb-4">Start your first experiment by analyzing a molecular structure</p>
+                            <a href="{{ url_for('molecular_input') }}" class="btn btn-primary">
+                                <i data-feather="plus" class="me-2"></i>Create First Experiment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Experiment Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="clock" class="me-2"></i>Recent Activity
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for experiment in experiments[:5] %}
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ experiment.name }}</h6>
+                                    <p class="text-muted small mb-1">
+                                        {{ 'Experiment completed' if experiment.status == 'completed' else 'Experiment started' if experiment.status == 'running' else 'Experiment failed' }}
+                                    </p>
+                                    <small class="text-muted">{{ experiment.created_at.strftime('%m/%d %H:%M') }}</small>
+                                </div>
+                                <span class="badge bg-{{ 'success' if experiment.status == 'completed' else 'warning' if experiment.status == 'running' else 'danger' }}">
+                                    {{ experiment.status }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Types Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="pie-chart" class="me-2"></i>Experiment Types
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="experimentTypesChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="zap" class="me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('molecular_input') }}" class="btn btn-outline-primary">
+                            <i data-feather="plus" class="me-2"></i>New Analysis
+                        </a>
+                        <button class="btn btn-outline-success" onclick="batchProcessing()">
+                            <i data-feather="layers" class="me-2"></i>Batch Processing
+                        </button>
+                        <button class="btn btn-outline-info" onclick="compareExperiments()">
+                            <i data-feather="bar-chart-2" class="me-2"></i>Compare Results
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="generateReport()">
+                            <i data-feather="file-text" class="me-2"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="search" class="me-2"></i>Search Experiments
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="searchExperiments" placeholder="Search by name, molecule, or description...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small">Date Range</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="date" class="form-control form-control-sm" id="dateFrom">
+                            </div>
+                            <div class="col-6">
+                                <input type="date" class="form-control form-control-sm" id="dateTo">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="applyAdvancedFilter()">
+                            <i data-feather="filter" class="me-2"></i>Apply Filters
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+                            <i data-feather="x" class="me-2"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Experiment Details Modal -->
+<div class="modal fade" id="experimentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-feather="activity" class="me-2"></i>Experiment Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="experiment-details-content">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="rerunExperiment()">
+                    <i data-feather="refresh-cw" class="me-2"></i>Rerun Experiment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentExperimentId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize chart
+    initializeExperimentTypesChart();
+    
+    // Setup search functionality
+    document.getElementById('searchExperiments').addEventListener('input', debounce(searchExperiments, 300));
+    
+    // Set default date range to last 30 days
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+    document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+});
+
+function initializeExperimentTypesChart() {
+    const ctx = document.getElementById('experimentTypesChart').getContext('2d');
+    
+    // Get experiment type counts
+    const experimentItems = document.querySelectorAll('.experiment-item');
+    const typeCounts = {};
+    
+    experimentItems.forEach(item => {
+        const type = item.dataset.type;
+        typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(typeCounts).map(key => key.charAt(0).toUpperCase() + key.slice(1)),
+            datasets: [{
+                data: Object.values(typeCounts),
+                backgroundColor: [
+                    '#0d6efd',
+                    '#198754',
+                    '#ffc107',
+                    '#dc3545',
+                    '#6f42c1'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function filterExperiments() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    const experiments = document.querySelectorAll('.experiment-item');
+    
+    experiments.forEach(experiment => {
+        const status = experiment.dataset.status;
+        const type = experiment.dataset.type;
+        
+        const statusMatch = !statusFilter || status === statusFilter;
+        const typeMatch = !typeFilter || type === typeFilter;
+        
+        if (statusMatch && typeMatch) {
+            experiment.style.display = 'block';
+        } else {
+            experiment.style.display = 'none';
+        }
+    });
+}
+
+function searchExperiments() {
+    const searchTerm = document.getElementById('searchExperiments').value.toLowerCase();
+    const experiments = document.querySelectorAll('.experiment-item');
+    
+    experiments.forEach(experiment => {
+        const name = experiment.querySelector('h6').textContent.toLowerCase();
+        const description = experiment.querySelector('.text-muted.small').textContent.toLowerCase();
+        
+        if (name.includes(searchTerm) || description.includes(searchTerm)) {
+            experiment.style.display = 'block';
+        } else {
+            experiment.style.display = 'none';
+        }
+    });
+}
+
+function applyAdvancedFilter() {
+    const dateFrom = new Date(document.getElementById('dateFrom').value);
+    const dateTo = new Date(document.getElementById('dateTo').value);
+    const experiments = document.querySelectorAll('.experiment-item');
+    
+    experiments.forEach(experiment => {
+        const dateText = experiment.querySelector('.fw-bold').textContent;
+        const experimentDate = new Date(dateText);
+        
+        if (experimentDate >= dateFrom && experimentDate <= dateTo) {
+            experiment.style.display = 'block';
+        } else {
+            experiment.style.display = 'none';
+        }
+    });
+    
+    // Also apply other filters
+    filterExperiments();
+    searchExperiments();
+}
+
+function clearFilters() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('searchExperiments').value = '';
+    
+    const experiments = document.querySelectorAll('.experiment-item');
+    experiments.forEach(experiment => {
+        experiment.style.display = 'block';
+    });
+}
+
+function viewExperiment(experimentId) {
+    currentExperimentId = experimentId;
+    const modal = new bootstrap.Modal(document.getElementById('experimentModal'));
+    modal.show();
+    
+    // Load experiment details
+    const content = document.getElementById('experiment-details-content');
+    content.innerHTML = `
+        <div class="text-center py-4">
+            <span class="loading-spinner me-2"></span>
+            Loading experiment details...
+        </div>
+    `;
+    
+    // Simulate loading experiment details
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6 class="text-primary">Experiment Information</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>ID:</strong></td>
+                            <td>${experimentId}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type:</strong></td>
+                            <td>Molecular Analysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Duration:</strong></td>
+                            <td>2 minutes 34 seconds</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-success">Results Summary</h6>
+                    <ul class="list-unstyled">
+                        <li><i data-feather="check" class="text-success me-2"></i>Analysis completed successfully</li>
+                        <li><i data-feather="check" class="text-success me-2"></i>Drug-likeness score: 85%</li>
+                        <li><i data-feather="check" class="text-success me-2"></i>Toxicity assessment: Low risk</li>
+                        <li><i data-feather="check" class="text-success me-2"></i>Formulation recommendations generated</li>
+                    </ul>
+                </div>
+            </div>
+            <h6 class="text-info mb-3">Detailed Results</h6>
+            <div class="bg-dark p-3 rounded">
+                <pre class="text-light mb-0">
+{
+  "molecular_weight": 276.33,
+  "drug_likeness": 0.85,
+  "toxicity_score": 0.15,
+  "predicted_form": "tablet",
+  "confidence": 0.92
+}
+                </pre>
+            </div>
+        `;
+        feather.replace();
+    }, 1500);
+}
+
+function duplicateExperiment(experimentId) {
+    MutaSight.showNotification(`Experiment ${experimentId} duplicated!`, 'success');
+}
+
+function shareExperiment(experimentId) {
+    const shareUrl = `${window.location.origin}/experiment/${experimentId}/share`;
+    MutaSight.copyToClipboard(shareUrl);
+    MutaSight.showNotification('Experiment share link copied!', 'success');
+}
+
+function addToProject(experimentId) {
+    MutaSight.showNotification('Add to project functionality coming soon!', 'info');
+}
+
+function deleteExperiment(experimentId) {
+    if (confirm('Are you sure you want to delete this experiment? This action cannot be undone.')) {
+        // Remove the experiment item from the DOM
+        const experimentItem = document.querySelector(`[onclick="viewExperiment(${experimentId})"]`).closest('.experiment-item');
+        experimentItem.remove();
+        MutaSight.showNotification('Experiment deleted successfully!', 'success');
+    }
+}
+
+function exportAllExperiments() {
+    const experiments = Array.from(document.querySelectorAll('.experiment-item')).map((item, index) => ({
+        id: index + 1,
+        name: item.querySelector('h6').textContent,
+        status: item.dataset.status,
+        type: item.dataset.type,
+        created: item.querySelector('.fw-bold').textContent
+    }));
+    
+    MutaSight.exportData(experiments, 'all_experiments', 'json');
+}
+
+function batchProcessing() {
+    MutaSight.showNotification('Batch processing feature coming soon!', 'info');
+}
+
+function compareExperiments() {
+    MutaSight.showNotification('Experiment comparison feature coming soon!', 'info');
+}
+
+function generateReport() {
+    MutaSight.showNotification('Report generation feature coming soon!', 'info');
+}
+
+function rerunExperiment() {
+    if (currentExperimentId) {
+        MutaSight.showNotification(`Rerunning experiment ${currentExperimentId}...`, 'info');
+        bootstrap.Modal.getInstance(document.getElementById('experimentModal')).hide();
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+{% endblock %}

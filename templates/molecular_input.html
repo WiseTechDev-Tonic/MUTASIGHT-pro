@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Molecular Input - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Molecular Input</li>
+                </ol>
+            </nav>
+            <h2 class="text-gradient mb-1">
+                <i data-feather="layers" class="me-2"></i>Molecular Structure Input
+            </h2>
+            <p class="text-muted mb-4">Enter molecular structures in any format - we'll auto-detect and analyze them</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Input Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="edit-3" class="me-2"></i>Input Molecular Structure
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <!-- Project Selection -->
+                        <div class="mb-3">
+                            <label for="project_id" class="form-label">
+                                <i data-feather="folder" class="me-2"></i>Project (Optional)
+                            </label>
+                            <select class="form-select" id="project_id" name="project_id">
+                                <option value="">Create new project or select existing</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Molecular Input -->
+                        <div class="mb-3">
+                            <label for="molecular_input" class="form-label">
+                                <i data-feather="code" class="me-2"></i>Molecular Structure
+                            </label>
+                            <div class="position-relative">
+                                <textarea 
+                                    class="form-control molecular-input" 
+                                    id="molecular_input" 
+                                    name="molecular_input" 
+                                    rows="8" 
+                                    placeholder="Enter molecular structure:&#10;• SMILES: c1ccccc1&#10;• InChI: InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H&#10;• PDB format: HEADER, ATOM, HETATM records&#10;• Peptide sequence: ACDEFGHIKLMNPQRSTVWY"
+                                    required
+                                ></textarea>
+                                <div class="invalid-feedback">
+                                    Please provide a molecular structure.
+                                </div>
+                                <div id="suggestions-dropdown" class="suggestions-dropdown" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Input Format Detection -->
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card bg-secondary">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">
+                                                <i data-feather="eye" class="me-2"></i>Auto-Detection
+                                            </h6>
+                                            <p class="mb-2 text-muted">Detected Format:</p>
+                                            <span class="badge bg-primary" id="detected-format">None</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-secondary">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title">
+                                                <i data-feather="check-circle" class="me-2"></i>Validation
+                                            </h6>
+                                            <p class="mb-2 text-muted">Input Status:</p>
+                                            <span class="badge bg-secondary" id="validation-status">Ready</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Examples -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">
+                                <i data-feather="bookmark" class="me-2"></i>Quick Examples
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 example-btn" 
+                                            data-example="c1ccccc1" data-name="Benzene">
+                                        Benzene (SMILES)
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 example-btn" 
+                                            data-example="CC(=O)Nc1ccc(O)cc1" data-name="Acetaminophen">
+                                        Acetaminophen
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 example-btn" 
+                                            data-example="CCO" data-name="Ethanol">
+                                        Ethanol
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 example-btn" 
+                                            data-example="CN1C=NC2=C1C(=O)N(C(=O)N2C)C" data-name="Caffeine">
+                                        Caffeine
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Options -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">
+                                <i data-feather="settings" class="me-2"></i>Analysis Options
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="predict_properties" name="predict_properties" checked>
+                                        <label class="form-check-label" for="predict_properties">
+                                            Predict Molecular Properties
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="toxicity_analysis" name="toxicity_analysis" checked>
+                                        <label class="form-check-label" for="toxicity_analysis">
+                                            Toxicity Analysis
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="drug_likeness" name="drug_likeness" checked>
+                                        <label class="form-check-label" for="drug_likeness">
+                                            Drug-Likeness Assessment
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="generate_3d" name="generate_3d" checked>
+                                        <label class="form-check-label" for="generate_3d">
+                                            Generate 3D Structure
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="similarity_search" name="similarity_search">
+                                        <label class="form-check-label" for="similarity_search">
+                                            Similarity Search
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="generate_mutations" name="generate_mutations">
+                                        <label class="form-check-label" for="generate_mutations">
+                                            Generate AI Mutations
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" onclick="clearForm()">
+                                <i data-feather="x" class="me-2"></i>Clear
+                            </button>
+                            <button type="submit" class="btn btn-gradient" id="analyze-btn">
+                                <i data-feather="play" class="me-2"></i>Analyze Molecule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Preview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="eye" class="me-2"></i>Molecular Preview
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="molecular-viewer" id="preview-viewer" style="height: 300px;">
+                        <div class="viewer-controls">
+                            <button class="btn btn-sm btn-secondary reset-view" title="Reset View">
+                                <i data-feather="rotate-ccw"></i>
+                            </button>
+                            <select class="btn btn-sm btn-secondary render-mode">
+                                <option value="ballandstick">Ball & Stick</option>
+                                <option value="spacefill">Space Fill</option>
+                                <option value="wireframe">Wireframe</option>
+                            </select>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                            <div class="text-center">
+                                <i data-feather="layers" style="width: 48px; height: 48px;" class="mb-2"></i>
+                                <p>Enter a molecule to see preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="help-circle" class="me-2"></i>Supported Formats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary">SMILES</h6>
+                        <p class="small text-muted mb-1">Simplified molecular-input line-entry system</p>
+                        <code class="small">CCO (ethanol)</code>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-success">InChI</h6>
+                        <p class="small text-muted mb-1">International Chemical Identifier</p>
+                        <code class="small">InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3</code>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-info">PDB Format</h6>
+                        <p class="small text-muted mb-1">Protein Data Bank format</p>
+                        <code class="small">ATOM records with coordinates</code>
+                    </div>
+                    <div>
+                        <h6 class="text-warning">Peptide Sequences</h6>
+                        <p class="small text-muted mb-1">Amino acid sequences</p>
+                        <code class="small">MVLSPADKTNVKAAW</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/molecular_3d_viewer.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+    
+    const molecularInput = document.getElementById('molecular_input');
+    const detectedFormat = document.getElementById('detected-format');
+    const validationStatus = document.getElementById('validation-status');
+    const previewViewer = document.getElementById('preview-viewer');
+    let viewer = null;
+    
+    // Initialize molecular viewer
+    if (window.MolecularViewer) {
+        viewer = new MolecularViewer('preview-viewer');
+    }
+    
+    // Input detection and validation
+    molecularInput.addEventListener('input', function() {
+        const input = this.value.trim();
+        if (!input) {
+            detectedFormat.textContent = 'None';
+            detectedFormat.className = 'badge bg-secondary';
+            validationStatus.textContent = 'Ready';
+            validationStatus.className = 'badge bg-secondary';
+            return;
+        }
+        
+        // Auto-detect format
+        const format = detectMolecularFormat(input);
+        detectedFormat.textContent = format.toUpperCase();
+        detectedFormat.className = `badge bg-${format === 'unknown' ? 'danger' : 'primary'}`;
+        
+        // Validate input
+        const isValid = validateMolecularInput(input, format);
+        validationStatus.textContent = isValid ? 'Valid' : 'Invalid';
+        validationStatus.className = `badge bg-${isValid ? 'success' : 'danger'}`;
+        
+        // Update preview
+        if (isValid && viewer && format === 'smiles') {
+            viewer.loadFromSMILES(input);
+        }
+    });
+    
+    // Example buttons
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const example = this.dataset.example;
+            molecularInput.value = example;
+            molecularInput.dispatchEvent(new Event('input'));
+        });
+    });
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            this.classList.add('was-validated');
+        } else {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Analyzing...';
+            analyzeBtn.disabled = true;
+            feather.replace();
+        }
+    });
+});
+
+function detectMolecularFormat(input) {
+    // SMILES detection
+    if (/^[A-Za-z0-9@+\-\[\]()=#$:\/\\]+$/.test(input) && input.length < 200) {
+        return 'smiles';
+    }
+    
+    // InChI detection
+    if (input.startsWith('InChI=')) {
+        return 'inchi';
+    }
+    
+    // PDB detection
+    if (input.includes('ATOM') || input.includes('HETATM')) {
+        return 'pdb';
+    }
+    
+    // Peptide sequence detection
+    if (/^[ACDEFGHIKLMNPQRSTVWY]+$/i.test(input)) {
+        return 'peptide';
+    }
+    
+    return 'unknown';
+}
+
+function validateMolecularInput(input, format) {
+    switch (format) {
+        case 'smiles':
+            return input.length > 0 && input.length < 500;
+        case 'inchi':
+            return input.startsWith('InChI=') && input.length > 10;
+        case 'pdb':
+            return input.includes('ATOM') || input.includes('HETATM');
+        case 'peptide':
+            return /^[ACDEFGHIKLMNPQRSTVWY]+$/i.test(input) && input.length > 0;
+        default:
+            return false;
+    }
+}
+
+function clearForm() {
+    document.getElementById('molecular_input').value = '';
+    document.getElementById('detected-format').textContent = 'None';
+    document.getElementById('detected-format').className = 'badge bg-secondary';
+    document.getElementById('validation-status').textContent = 'Ready';
+    document.getElementById('validation-status').className = 'badge bg-secondary';
+    
+    // Clear preview
+    const previewContainer = document.querySelector('#preview-viewer');
+    previewContainer.innerHTML = `
+        <div class="viewer-controls">
+            <button class="btn btn-sm btn-secondary reset-view" title="Reset View">
+                <i data-feather="rotate-ccw"></i>
+            </button>
+            <select class="btn btn-sm btn-secondary render-mode">
+                <option value="ballandstick">Ball & Stick</option>
+                <option value="spacefill">Space Fill</option>
+                <option value="wireframe">Wireframe</option>
+            </select>
+        </div>
+        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+            <div class="text-center">
+                <i data-feather="layers" style="width: 48px; height: 48px;" class="mb-2"></i>
+                <p>Enter a molecule to see preview</p>
+            </div>
+        </div>
+    `;
+    feather.replace();
+}
+</script>
+{% endblock %}

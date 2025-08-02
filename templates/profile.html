@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-gradient mb-1">
+                <i data-feather="user" class="me-2"></i>User Profile
+            </h2>
+            <p class="text-muted mb-4">Manage your account settings and preferences</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-8">
+            <div class="card shadow-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="edit-3" class="me-2"></i>Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="firstName" value="Dr. {{ current_user.username.split()[0] if ' ' in current_user.username else current_user.username }}">
+                                    <label for="firstName">
+                                        <i data-feather="user" class="me-2"></i>First Name
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="lastName" value="{{ current_user.username.split()[1] if ' ' in current_user.username else 'Researcher' }}">
+                                    <label for="lastName">Last Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="username" value="{{ current_user.username }}" readonly>
+                            <label for="username">
+                                <i data-feather="at-sign" class="me-2"></i>Username
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" value="{{ current_user.email }}">
+                            <label for="email">
+                                <i data-feather="mail" class="me-2"></i>Email Address
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="institution" value="Research Institute">
+                            <label for="institution">
+                                <i data-feather="building" class="me-2"></i>Institution/Organization
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="researchArea">
+                                <option value="drug_discovery" selected>Drug Discovery</option>
+                                <option value="medicinal_chemistry">Medicinal Chemistry</option>
+                                <option value="computational_biology">Computational Biology</option>
+                                <option value="pharmacology">Pharmacology</option>
+                                <option value="biochemistry">Biochemistry</option>
+                                <option value="molecular_biology">Molecular Biology</option>
+                                <option value="chemical_biology">Chemical Biology</option>
+                                <option value="structural_biology">Structural Biology</option>
+                            </select>
+                            <label for="researchArea">
+                                <i data-feather="flask" class="me-2"></i>Research Area
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating mb-4">
+                            <textarea class="form-control" id="bio" style="height: 100px" placeholder="Tell us about your research interests...">Passionate researcher focused on computational drug discovery and molecular analysis. Experienced in AI-driven pharmaceutical research.</textarea>
+                            <label for="bio">
+                                <i data-feather="file-text" class="me-2"></i>Bio
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-gradient">
+                            <i data-feather="save" class="me-2"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="card shadow-custom mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="shield" class="me-2"></i>Security Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Change Password</h6>
+                    <form id="passwordForm">
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="currentPassword">
+                            <label for="currentPassword">
+                                <i data-feather="lock" class="me-2"></i>Current Password
+                            </label>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="newPassword">
+                                    <label for="newPassword">New Password</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="confirmPassword">
+                                    <label for="confirmPassword">Confirm Password</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i data-feather="key" class="me-2"></i>Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="card shadow-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="settings" class="me-2"></i>Preferences
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Notifications</h6>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                <label class="form-check-label" for="emailNotifications">
+                                    Email Notifications
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="projectUpdates" checked>
+                                <label class="form-check-label" for="projectUpdates">
+                                    Project Updates
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="analyticsReports">
+                                <label class="form-check-label" for="analyticsReports">
+                                    Weekly Analytics Reports
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Analysis Defaults</h6>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="autoGenerate3D" checked>
+                                <label class="form-check-label" for="autoGenerate3D">
+                                    Auto-generate 3D structures
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="autoToxicity" checked>
+                                <label class="form-check-label" for="autoToxicity">
+                                    Auto-run toxicity predictions
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="autoAI" checked>
+                                <label class="form-check-label" for="autoAI">
+                                    Enable AI insights by default
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="defaultView" class="form-label">Default Dashboard View</label>
+                            <select class="form-select" id="defaultView">
+                                <option value="overview" selected>Overview</option>
+                                <option value="projects">Projects</option>
+                                <option value="recent">Recent Analyses</option>
+                                <option value="collaboration">Collaboration</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="timezone" class="form-label">Timezone</label>
+                            <select class="form-select" id="timezone">
+                                <option value="UTC" selected>UTC</option>
+                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Los_Angeles">Pacific Time</option>
+                                <option value="Europe/London">London</option>
+                                <option value="Asia/Tokyo">Tokyo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-outline-primary" onclick="savePreferences()">
+                            <i data-feather="save" class="me-2"></i>Save Preferences
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Profile Avatar -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mx-auto mb-3">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <h5 class="mb-1">{{ current_user.username }}</h5>
+                    <p class="text-muted mb-3">Drug Discovery Researcher</p>
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i data-feather="camera" class="me-2"></i>Change Avatar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="bar-chart-2" class="me-2"></i>Account Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h4 class="text-primary mb-1">47</h4>
+                                <small class="text-muted">Experiments</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h4 class="text-success mb-1">12</h4>
+                                <small class="text-muted">Projects</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-info mb-1">8</h4>
+                                <small class="text-muted">Collaborations</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-warning mb-1">156</h4>
+                                <small class="text-muted">Days Active</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="clock" class="me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-item d-flex align-items-start mb-3">
+                        <div class="activity-icon bg-primary">
+                            <i data-feather="layers" style="width: 12px; height: 12px;"></i>
+                        </div>
+                        <div class="activity-content ms-2">
+                            <div class="activity-text small">Analyzed aspirin compound</div>
+                            <div class="activity-time text-muted" style="font-size: 11px;">2 hours ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item d-flex align-items-start mb-3">
+                        <div class="activity-icon bg-success">
+                            <i data-feather="users" style="width: 12px; height: 12px;"></i>
+                        </div>
+                        <div class="activity-content ms-2">
+                            <div class="activity-text small">Joined Beta Research project</div>
+                            <div class="activity-time text-muted" style="font-size: 11px;">Yesterday</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item d-flex align-items-start">
+                        <div class="activity-icon bg-info">
+                            <i data-feather="file-text" style="width: 12px; height: 12px;"></i>
+                        </div>
+                        <div class="activity-content ms-2">
+                            <div class="activity-text small">Generated research report</div>
+                            <div class="activity-time text-muted" style="font-size: 11px;">2 days ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="tool" class="me-2"></i>Account Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-info btn-sm">
+                            <i data-feather="download" class="me-2"></i>Export Data
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm">
+                            <i data-feather="archive" class="me-2"></i>Archive Old Projects
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm">
+                            <i data-feather="trash-2" class="me-2"></i>Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+    
+    // Profile form handler
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Updating...';
+        submitBtn.disabled = true;
+        feather.replace();
+        
+        // Simulate update
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            feather.replace();
+            
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                <i data-feather="check-circle" class="me-2"></i>
+                Profile updated successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            this.insertBefore(alert, this.firstChild);
+            feather.replace();
+        }, 1500);
+    });
+    
+    // Password form handler
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            alert('Password must be at least 6 characters long');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Changing...';
+        submitBtn.disabled = true;
+        feather.replace();
+        
+        // Simulate password change
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            feather.replace();
+            
+            // Clear form and show success
+            this.reset();
+            alert('Password changed successfully!');
+        }, 1500);
+    });
+});
+
+function savePreferences() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i data-feather="loader" class="me-2"></i>Saving...';
+    btn.disabled = true;
+    feather.replace();
+    
+    // Simulate saving
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        feather.replace();
+        
+        // Show success message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+        alert.innerHTML = `
+            <i data-feather="check-circle" class="me-2"></i>
+            Preferences saved successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        btn.parentElement.appendChild(alert);
+        feather.replace();
+    }, 1000);
+}
+</script>
+
+<style>
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.activity-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.stat-item h4 {
+    font-weight: 600;
+}
+</style>
+{% endblock %}

@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-custom mt-4 login-card">
+            <div class="card shadow-custom mt-4">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
                         <h3 class="text-gradient">Join MutaSight</h3>
@@ -100,7 +100,7 @@
                         <div class="form-check mb-4">
                             <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
                             <label class="form-check-label" for="newsletter">
-                                Subscribe to research updates and platform news
+                                Subscribe to research updates and new features
                             </label>
                         </div>
                         
@@ -114,7 +114,7 @@
                     <div class="text-center">
                         <p class="text-muted mb-0">
                             Already have an account?
-                            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                            <a href="{{ url_for('login') }}" class="text-decoration-none">
                                 Sign in here
                             </a>
                         </p>
@@ -122,34 +122,22 @@
                 </div>
             </div>
             
-            <!-- Platform Benefits -->
-            <div class="card mt-4 bg-secondary features-card">
+            <!-- Benefits -->
+            <div class="card mt-4 bg-secondary">
                 <div class="card-body">
-                    <h6 class="card-title text-center mb-3">What's included:</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>Unlimited molecular analysis</small>
+                    <h6 class="card-title text-center mb-3">Why researchers choose MutaSight:</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 text-center">
+                            <i data-feather="zap" class="text-warning mb-2"></i>
+                            <small class="d-block text-muted">10x Faster Analysis</small>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>AI-powered predictions</small>
+                        <div class="col-md-4 text-center">
+                            <i data-feather="shield" class="text-success mb-2"></i>
+                            <small class="d-block text-muted">Secure & Private</small>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>3D molecular visualization</small>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>Team collaboration tools</small>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>Research paper analysis</small>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <i data-feather="check-circle" class="text-success me-2 features-icon"></i>
-                            <small>DNA/RNA sequence analysis</small>
+                        <div class="col-md-4 text-center">
+                            <i data-feather="globe" class="text-info mb-2"></i>
+                            <small class="d-block text-muted">Global Community</small>
                         </div>
                     </div>
                 </div>
@@ -162,26 +150,33 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        // Only prevent default if invalid
-        if (!form.checkValidity()) {
-            e.preventDefault();
-            form.classList.add('was-validated');
-        } else {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Creating Account...';
-            submitBtn.disabled = true;
-            
-            // Re-initialize feather icons for the new icon
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-        }
+    // Focus on first name field
+    document.getElementById('first_name').focus();
+    
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        if (password.length >= 6) strength++;
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+        
+        // Could add visual strength indicator here
     });
     
-    // Initialize feather icons
-    feather.replace();
+    // Add loading state to form submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (form.checkValidity()) {
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Account...';
+            submitBtn.disabled = true;
+        }
+    });
 });
 </script>
 {% endblock %}

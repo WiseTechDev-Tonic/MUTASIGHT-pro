@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - MutaSight{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('molecular_input') }}">Molecular Input</a></li>
+                    <li class="breadcrumb-item active">Analysis Results</li>
+                </ol>
+            </nav>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-gradient mb-1">
+                        <i data-feather="bar-chart-2" class="me-2"></i>Analysis Results
+                    </h2>
+                    <p class="text-muted">{{ molecule.name or 'Unknown Molecule' }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="copyMoleculeData()">
+                        <i data-feather="copy" class="me-2"></i>Copy Data
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="download" class="me-2"></i>Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=molecule.experiments[0].id if molecule.experiments else 0, format='json') }}">
+                                <i data-feather="file-text" class="me-2"></i>JSON
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=molecule.experiments[0].id if molecule.experiments else 0, format='pdf') }}">
+                                <i data-feather="file" class="me-2"></i>PDF
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('export_data', experiment_id=molecule.experiments[0].id if molecule.experiments else 0, format='excel') }}">
+                                <i data-feather="grid" class="me-2"></i>Excel
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Molecular Visualization -->
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="eye" class="me-2"></i>3D Molecular Structure
+                </div>
+                <div class="card-body p-0">
+                    <div class="molecular-viewer" id="analysis-viewer" style="height: 400px;" data-molecule-id="{{ molecule.id }}">
+                        <div class="viewer-controls">
+                            <button class="btn btn-sm btn-secondary reset-view" title="Reset View">
+                                <i data-feather="rotate-ccw"></i>
+                            </button>
+                            <select class="btn btn-sm btn-secondary render-mode">
+                                <option value="ballandstick">Ball & Stick</option>
+                                <option value="spacefill">Space Fill</option>
+                                <option value="wireframe">Wireframe</option>
+                            </select>
+                            <button class="btn btn-sm btn-secondary export-image" title="Export Image">
+                                <i data-feather="camera"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Molecular Properties -->
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="info" class="me-2"></i>Molecular Properties
+                </div>
+                <div class="card-body">
+                    <div class="property-grid">
+                        <div class="property-item">
+                            <div class="property-label">Molecular Weight</div>
+                            <div class="property-value">{{ "%.2f"|format(molecule.molecular_weight or 0) }} g/mol</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Formula</div>
+                            <div class="property-value">{{ molecule.molecular_formula or 'Unknown' }}</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Input Type</div>
+                            <div class="property-value">{{ molecule.input_type.upper() or 'UNKNOWN' }}</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Drug Likeness</div>
+                            <div class="property-value">{{ "%.1f"|format((ai_analysis.drug_likeness or 0) * 100) }}%</div>
+                        </div>
+                        {% if ai_analysis.properties %}
+                            <div class="property-item">
+                                <div class="property-label">Lipophilicity</div>
+                                <div class="property-value">{{ "%.2f"|format(ai_analysis.properties.lipophilicity or 0) }}</div>
+                            </div>
+                            <div class="property-item">
+                                <div class="property-label">Solubility</div>
+                                <div class="property-value">{{ "%.2f"|format(ai_analysis.properties.solubility or 0) }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analysis Insights -->
+            {% if ai_analysis.insights %}
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="brain" class="me-2"></i>AI Analysis Insights
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for insight in ai_analysis.insights %}
+                        <li class="mb-2">
+                            <i data-feather="arrow-right" class="text-primary me-2"></i>
+                            {{ insight }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if ai_analysis.recommendations %}
+                    <hr>
+                    <h6 class="text-warning mb-3">
+                        <i data-feather="lightbulb" class="me-2"></i>Recommendations
+                    </h6>
+                    <ul class="list-unstyled">
+                        {% for rec in ai_analysis.recommendations %}
+                        <li class="mb-2">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            {{ rec }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Formulation Prediction -->
+            {% if formulation_data %}
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="package" class="me-2"></i>Formulation Prediction
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Predicted Form</h6>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-primary me-3 fs-6">{{ formulation_data.predicted_form.title() }}</span>
+                                <span class="text-muted">Confidence: {{ "%.1f"|format((formulation_data.confidence or 0) * 100) }}%</span>
+                            </div>
+                            
+                            {% if formulation_data.dosage_guidelines %}
+                            <h6 class="text-info mb-2">Dosage Guidelines</h6>
+                            <ul class="list-unstyled text-muted">
+                                <li><strong>Initial Dose:</strong> {{ formulation_data.dosage_guidelines.initial_dose }}</li>
+                                <li><strong>Frequency:</strong> {{ formulation_data.dosage_guidelines.frequency }}</li>
+                                <li><strong>Route:</strong> {{ formulation_data.dosage_guidelines.route }}</li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if formulation_data.excipients %}
+                            <h6 class="text-success mb-3">Recommended Excipients</h6>
+                            <ul class="list-unstyled">
+                                {% for excipient in formulation_data.excipients %}
+                                <li class="mb-1">
+                                    <i data-feather="check" class="text-success me-2"></i>
+                                    {{ excipient }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            {% if formulation_data.manufacturing_considerations %}
+                            <h6 class="text-warning mb-2">Manufacturing Notes</h6>
+                            <ul class="list-unstyled text-muted small">
+                                {% for consideration in formulation_data.manufacturing_considerations %}
+                                <li class="mb-1">• {{ consideration }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Material Analysis -->
+            {% if material_data %}
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="layers" class="me-2"></i>Raw Materials & Extraction
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Required Materials</h6>
+                            {% if material_data.raw_materials %}
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th>Type</th>
+                                            <th>Purity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for material in material_data.raw_materials %}
+                                        <tr>
+                                            <td>{{ material.name }}</td>
+                                            <td><span class="badge bg-secondary">{{ material.type }}</span></td>
+                                            <td>{{ material.purity }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">Extraction Methods</h6>
+                            {% if material_data.extraction_methods %}
+                            <div class="accordion" id="extractionAccordion">
+                                {% for method in material_data.extraction_methods %}
+                                <div class="accordion-item bg-secondary">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extraction{{ loop.index }}">
+                                            {{ method.material }}
+                                        </button>
+                                    </h2>
+                                    <div id="extraction{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#extractionAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Method:</strong> {{ method.method }}</p>
+                                            <p><strong>Efficiency:</strong> {{ "%.1f"|format((method.efficiency or 0) * 100) }}%</p>
+                                            <p><strong>Cost:</strong> <span class="badge bg-{{ 'success' if method.cost == 'Low' else 'warning' if method.cost == 'Medium' else 'danger' }}">{{ method.cost }}</span></p>
+                                            <p><strong>Environmental Impact:</strong> <span class="badge bg-{{ 'success' if method.environmental_impact == 'Low' else 'warning' if method.environmental_impact == 'Medium' else 'danger' }}">{{ method.environmental_impact }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if material_data.cost_analysis %}
+                            <div class="mt-3">
+                                <h6 class="text-warning">Cost Analysis</h6>
+                                <p class="text-muted">
+                                    <strong>Total Cost:</strong> ${{ "%.2f"|format(material_data.cost_analysis.total_cost_per_kg) }} per kg<br>
+                                    <strong>Category:</strong> <span class="badge bg-{{ 'success' if material_data.cost_analysis.cost_category == 'Low' else 'warning' if material_data.cost_analysis.cost_category == 'Medium' else 'danger' }}">{{ material_data.cost_analysis.cost_category }}</span>
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Biological Pathways -->
+            {% if pathway_data %}
+            <div class="analysis-card">
+                <div class="card-header">
+                    <i data-feather="activity" class="me-2"></i>Biological Pathway Analysis
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Predicted Pathways</h6>
+                            {% if pathway_data.predicted_pathways %}
+                            <ul class="list-unstyled">
+                                {% for pathway in pathway_data.predicted_pathways %}
+                                <li class="mb-2">
+                                    <i data-feather="arrow-right" class="text-primary me-2"></i>
+                                    {{ pathway }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            <h6 class="text-success mb-3">Protein Targets</h6>
+                            {% if pathway_data.protein_targets %}
+                            <ul class="list-unstyled">
+                                {% for target in pathway_data.protein_targets %}
+                                <li class="mb-2">
+                                    <i data-feather="target" class="text-success me-2"></i>
+                                    {{ target }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger mb-3">Safety Assessment</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Toxicity Score</label>
+                                <div class="progress">
+                                    <div class="progress-bar bg-{{ 'success' if pathway_data.toxicity_score < 0.3 else 'warning' if pathway_data.toxicity_score < 0.7 else 'danger' }}" 
+                                         style="width: {{ (pathway_data.toxicity_score * 100)|int }}%">
+                                        {{ "%.1f"|format((pathway_data.toxicity_score or 0) * 100) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Bioavailability</label>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" 
+                                         style="width: {{ ((pathway_data.bioavailability or 0) * 100)|int }}%">
+                                        {{ "%.1f"|format((pathway_data.bioavailability or 0) * 100) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if pathway_data.side_effects %}
+                            <h6 class="text-warning mb-2">Potential Side Effects</h6>
+                            <ul class="list-unstyled">
+                                {% for effect in pathway_data.side_effects %}
+                                <li class="mb-1">
+                                    <i data-feather="alert-triangle" class="text-warning me-2"></i>
+                                    {{ effect }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            <p class="text-muted small">
+                                <strong>Immune Response:</strong> {{ pathway_data.immune_response }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Mutations Section -->
+            <div class="analysis-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i data-feather="shuffle" class="me-2"></i>Molecular Mutations</span>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" id="mutation-type-select" style="width: auto;">
+                            <option value="guided">AI Guided</option>
+                            <option value="random">Random</option>
+                            <option value="user_defined">User Defined</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary" id="generate-mutations-btn">
+                            <i data-feather="shuffle" class="me-2"></i>Generate
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="mutation-results">
+                        <div class="text-center py-4 text-muted">
+                            <i data-feather="shuffle" style="width: 48px; height: 48px;" class="mb-3"></i>
+                            <p>Generate molecular mutations to explore chemical space and optimize properties.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="info" class="me-2"></i>Molecule Info
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>SMILES:</strong>
+                        <div class="mt-1">
+                            <code class="smiles-code">{{ molecule.smiles or 'Not available' }}</code>
+                            {% if molecule.smiles %}
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="MutaSight.copyToClipboard('{{ molecule.smiles }}')">
+                                <i data-feather="copy"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if molecule.inchi %}
+                    <div class="mb-3">
+                        <strong>InChI:</strong>
+                        <div class="mt-1">
+                            <small class="text-muted d-block" style="word-break: break-all;">{{ molecule.inchi[:100] }}{% if molecule.inchi|length > 100 %}...{% endif %}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <strong>Created:</strong>
+                        <div class="text-muted">{{ molecule.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Matches -->
+            {% if db_matches %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i data-feather="database" class="me-2"></i>Similar Molecules
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for match in db_matches[:5] %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ match.name }}</h6>
+                                <small class="text-muted">{{ match.database }}</small>
+                            </div>
+                            <span class="badge bg-primary">{{ "%.1f"|format((match.similarity or 0) * 100) }}%</span>
+                        </div>
+                        {% if match.url %}
+                        <a href="{{ match.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+                            <i data-feather="external-link" class="me-1"></i>View
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    {% if db_matches|length > 5 %}
+                    <div class="text-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary">
+                            View {{ db_matches|length - 5 }} more matches
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AI Assistant -->
+            <div class="card">
+                <div class="chat-container" id="analysis-chatbot" style="height: 500px;">
+                    <div class="chat-header">
+                        <i data-feather="message-circle" class="me-2"></i>
+                        Ask about this molecule
+                    </div>
+                    <div class="chat-messages"></div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ask about analysis results...">
+                            <button class="btn btn-primary" type="button">
+                                <i data-feather="send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize molecular viewer with the analyzed molecule
+    const viewer = initializeMolecularViewer('analysis-viewer', '{{ molecule.smiles }}');
+    
+    // Initialize mutation generator
+    window.mutasightMutationGenerator = new MutationGenerator({{ molecule.id }});
+    
+    // Initialize chatbot for this specific molecule
+    window.mutasightAnalysisChatbot = new ChatBot('analysis-chatbot');
+    
+    // Auto-ask about the molecule
+    setTimeout(() => {
+        if (window.mutasightAnalysisChatbot) {
+            window.mutasightAnalysisChatbot.askAboutMolecule('{{ molecule.smiles }}');
+        }
+    }, 1000);
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+function copyMoleculeData() {
+    const data = {
+        name: '{{ molecule.name }}',
+        smiles: '{{ molecule.smiles }}',
+        formula: '{{ molecule.molecular_formula }}',
+        weight: {{ molecule.molecular_weight or 0 }},
+        drug_likeness: {{ (ai_analysis.drug_likeness or 0) * 100 }}
+    };
+    
+    const text = `Molecule: ${data.name}
+SMILES: ${data.smiles}
+Formula: ${data.formula}
+Molecular Weight: ${data.weight} g/mol
+Drug Likeness: ${data.drug_likeness.toFixed(1)}%`;
+    
+    MutaSight.copyToClipboard(text);
+}
+</script>
+{% endblock %}

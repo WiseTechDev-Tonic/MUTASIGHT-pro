@@ -1,486 +1,642 @@
-/* MutaSight AI - Modern Dark Theme Scientific Interface */
+/* MutaSight Custom Styles */
+
 :root {
-    --primary-blue: #007bff;
-    --success-green: #28a745;
-    --info-cyan: #17a2b8;
-    --warning-orange: #ffc107;
-    --danger-red: #dc3545;
-    
-    --bg-main: #212529;
-    --bg-card: #343a40;
-    --bg-navbar: #1a1a1a;
-    --text-primary: #ffffff;
-    --text-muted: #6c757d;
-    
-    --shadow-custom: 0 4px 16px rgba(0, 0, 0, 0.3);
-    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --gradient-primary: linear-gradient(135deg, var(--primary-blue), var(--info-cyan));
+    --mutasight-primary: #0d6efd;
+    --mutasight-secondary: #6c757d;
+    --mutasight-success: #198754;
+    --mutasight-info: #0dcaf0;
+    --mutasight-warning: #ffc107;
+    --mutasight-danger: #dc3545;
+    --mutasight-light: #f8f9fa;
+    --mutasight-dark: #212529;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
 }
 
-/* Global Dark Theme Styling */
+/* Global Styles */
 body {
-    background-color: var(--bg-main) !important;
-    color: var(--text-primary) !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    min-height: 100vh;
 }
 
-/* Text Gradients */
+/* Text Gradient */
 .text-gradient {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-/* Custom Shadows */
-.shadow-custom {
-    box-shadow: var(--shadow-custom) !important;
+/* Navbar Styling */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
 }
 
-.shadow-hover {
-    transition: all 0.3s ease;
-}
-
-.shadow-hover:hover {
-    box-shadow: var(--shadow-hover) !important;
-    transform: translateY(-2px);
+.navbar-brand .text-primary {
+    color: var(--mutasight-primary) !important;
 }
 
 /* Card Styling */
 .card {
-    background-color: var(--bg-card) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    box-shadow: var(--shadow-custom);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-hover);
     transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-.card-header {
-    background-color: rgba(0, 123, 255, 0.1) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px 12px 0 0 !important;
+.shadow-custom {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Button Styling */
-.btn-primary {
-    background: var(--gradient-primary);
+.btn-gradient {
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
     border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    padding: 12px 24px;
+    color: white;
+    font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, #0056b3, #138496);
-    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+.btn-gradient:hover {
     transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+    color: white;
 }
 
-.btn-outline-primary {
-    border-color: var(--primary-blue);
-    color: var(--primary-blue);
-    border-radius: 8px;
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--primary-blue);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-/* Form Controls */
-.form-control, .form-select {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: var(--text-primary) !important;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: var(--primary-blue) !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-}
-
-.form-floating > label {
-    color: var(--text-muted) !important;
-}
-
-/* Table Styling */
-.table-dark {
-    --bs-table-bg: var(--bg-card);
-    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
-    --bs-table-hover-bg: rgba(0, 123, 255, 0.1);
-}
-
-/* Navigation */
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.navbar-nav .nav-link {
-    padding: 12px 16px !important;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    margin: 0 2px;
-}
-
-.navbar-nav .nav-link:hover {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: var(--primary-blue) !important;
-}
-
-/* Alerts */
-.alert {
-    border-radius: 10px;
-    border: none;
-    box-shadow: var(--shadow-custom);
-}
-
-.alert-info {
-    background-color: rgba(23, 162, 184, 0.1);
-    color: #b8e3e8;
-    border-left: 4px solid var(--info-cyan);
-}
-
-.alert-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #c3e6cb;
-    border-left: 4px solid var(--success-green);
-}
-
-.alert-warning {
-    background-color: rgba(255, 193, 7, 0.1);
-    color: #ffeaa7;
-    border-left: 4px solid var(--warning-orange);
-}
-
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #f8d7da;
-    border-left: 4px solid var(--danger-red);
-}
-
-/* 3D Molecular Viewer */
-.molecular-viewer-3d {
-    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-dark) 0%, var(--bs-secondary) 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
     position: relative;
     overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(13, 110, 253, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(13, 202, 240, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+/* Feature Cards */
+.feature-card {
+    transition: all 0.3s ease;
+    height: 100%;
+    border: none;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Molecular Viewer */
+.molecular-viewer {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 15px;
     min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.molecular-viewer canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 15px;
 }
 
 .viewer-controls {
     position: absolute;
     top: 15px;
     right: 15px;
-    z-index: 100;
+    z-index: 10;
     display: flex;
-    gap: 8px;
+    gap: 5px;
 }
 
 .viewer-controls .btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    opacity: 0.9;
+    transition: all 0.3s ease;
 }
 
-/* DNA/RNA Visualization */
-.dna-helix-viewer {
-    background: radial-gradient(circle, #1a1a1a 0%, #0a0a0a 100%);
-    border: 2px solid rgba(0, 255, 100, 0.3);
-    border-radius: 12px;
-    min-height: 500px;
-    position: relative;
-    overflow: hidden;
+.viewer-controls .btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
 }
 
-.base-pair-info {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px 15px;
-    border-radius: 8px;
+/* Form Controls */
+.form-control, .form-select {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--bs-body-color);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background: var(--glass-bg);
+    border-color: var(--mutasight-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    color: var(--bs-body-color);
+}
+
+.form-floating > label {
+    color: var(--bs-secondary);
+}
+
+/* Analysis Cards */
+.analysis-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.analysis-card:hover {
+    border-color: var(--mutasight-primary);
+}
+
+.analysis-card .card-header {
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
     color: white;
-    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    border-radius: 15px 15px 0 0;
+    border: none;
+}
+
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.property-item {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.property-item:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
+}
+
+.property-label {
     font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.property-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--mutasight-info);
 }
 
 /* Chat Interface */
 .chat-container {
     height: 600px;
-    background-color: var(--bg-card);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow-custom);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
 }
 
 .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
-    background: linear-gradient(180deg, var(--bg-card) 0%, rgba(52, 58, 64, 0.8) 100%);
+    background: transparent;
 }
 
-.chat-input-container {
-    padding: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: var(--bg-card);
-}
-
-.message {
+.chat-message {
     margin-bottom: 1rem;
-    padding: 12px 16px;
-    border-radius: 12px;
-    max-width: 80%;
-    animation: fadeIn 0.3s ease;
+    display: flex;
+    align-items: flex-start;
 }
 
-.message.user {
-    background: var(--gradient-primary);
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message .message-content {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    word-wrap: break-word;
+    backdrop-filter: blur(10px);
+}
+
+.chat-message.user .message-content {
+    background: linear-gradient(135deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
     color: white;
-    margin-left: auto;
-    text-align: right;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    margin-left: 1rem;
 }
 
-.message.bot {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.chat-message.assistant .message-content {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--bs-body-color);
+    margin-right: 1rem;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.chat-input {
+    padding: 1rem;
+    background: transparent;
+    border-top: 1px solid var(--glass-border);
 }
 
-/* Live User Tracking */
-.user-status {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-    position: relative;
-    animation: pulse 2s infinite;
+.chat-input .input-group {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
 }
 
-.user-status.online {
-    background-color: var(--success-green);
-    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
-}
-
-.user-status.away {
-    background-color: var(--warning-orange);
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
-}
-
-.user-status.offline {
-    background-color: var(--text-muted);
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Loading Animations */
-.spinner-border-custom {
-    width: 3rem;
-    height: 3rem;
-    border: 0.3em solid rgba(0, 123, 255, 0.2);
-    border-right-color: var(--primary-blue);
-}
-
-/* Project Cards */
-.project-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.project-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: var(--shadow-hover);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .chat-container {
-        height: 400px;
-    }
-    
-    .message {
-        max-width: 95%;
-    }
-    
-    .molecular-viewer-3d, .dna-helix-viewer {
-        min-height: 300px;
-    }
-    
-    .viewer-controls {
-        position: static;
-        margin: 10px;
-        justify-content: center;
-    }
-}
-
-/* Scientific Data Tables */
-.scientific-table {
-    background-color: var(--bg-card);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-}
-
-.scientific-table th {
-    background-color: rgba(0, 123, 255, 0.1);
-    color: var(--primary-blue);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
-
-/* Modal Styling */
-.modal-content {
-    background-color: var(--bg-card) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: var(--shadow-hover) !important;
-}
-
-.modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Dropdown Menus */
-.dropdown-menu {
-    background-color: var(--bg-card) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: var(--shadow-custom) !important;
-}
-
-.dropdown-item {
-    color: var(--text-primary) !important;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background-color: rgba(0, 123, 255, 0.1) !important;
-    color: var(--primary-blue) !important;
-}
-
-/* Login Page Specific Styles */
-.btn-gradient {
-    background: var(--gradient-primary);
+.chat-input .form-control {
     border: none;
-    color: white;
-    font-weight: 500;
-    padding: 12px 24px;
-    border-radius: 8px;
+    background: transparent;
+    padding: 0.75rem 1rem;
+}
+
+.chat-input .btn {
+    border: none;
+    border-radius: 0 25px 25px 0;
+}
+
+/* Mutations Results */
+.mutation-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.btn-gradient:hover {
-    background: linear-gradient(135deg, #0056b3, #138496);
-    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-    transform: translateY(-1px);
+.mutation-card:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
+}
+
+.mutation-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.score-high { color: var(--mutasight-success); }
+.score-medium { color: var(--mutasight-warning); }
+.score-low { color: var(--mutasight-danger); }
+
+/* Input Suggestions */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0 0 10px 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    background: var(--mutasight-primary);
     color: white;
 }
 
-.btn-loading {
-    position: relative;
+.suggestion-item:last-child {
+    border-bottom: none;
 }
 
-.btn-loading:disabled {
-    opacity: 0.7;
-}
-
-.form-floating > label {
-    display: flex;
-    align-items: center;
-    padding-left: 0.75rem;
-}
-
-.form-floating > label i[data-feather] {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-}
-
-/* Login container styling */
-.login-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--bg-main) 0%, #1a1d23 100%);
-    display: flex;
-    align-items: center;
-}
-
-/* Features preview card */
-.bg-secondary {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+/* Login/Register Forms */
+.login-card, .features-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
 }
 
 .features-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Progress Indicators */
+.progress-ring {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+.progress-ring circle {
+    fill: transparent;
+    stroke: var(--mutasight-primary);
+    stroke-width: 4;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray 0.3s ease;
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Experiment Timeline */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--mutasight-primary) 0%, var(--mutasight-info) 100%);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    background: var(--mutasight-primary);
+    border-radius: 50%;
+    border: 3px solid var(--bs-dark);
+}
+
+/* Error Pages */
+.error-page {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.error-page .display-1 {
+    font-size: 8rem;
+    font-weight: 900;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--bs-secondary);
+}
+
+.breadcrumb-item.active {
+    color: var(--mutasight-primary);
+}
+
+/* Tables */
+.table-dark {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+}
+
+/* Alerts */
+.alert {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+/* Group/Collaboration Cards */
+.group-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
+}
+
+.member-avatar {
     width: 32px;
     height: 32px;
-    margin: 0 auto 8px auto;
+    border-radius: 50%;
+    background: var(--mutasight-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
-/* Form validation styles */
-.was-validated .form-control:valid {
-    border-color: var(--success-green);
-    background-image: none;
+/* Paper Cards */
+.paper-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
 }
 
-.was-validated .form-control:invalid {
-    border-color: var(--danger-red);
-    background-image: none;
+.paper-card:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
 }
 
-.invalid-feedback {
-    color: var(--danger-red);
-    font-size: 0.875rem;
+/* Experiment Cards */
+.experiment-item {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
-/* Login page animations */
+.experiment-item:hover {
+    border-color: var(--mutasight-primary);
+    transform: translateY(-2px);
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 @keyframes slideUp {
-    from {
+    from { 
         opacity: 0;
         transform: translateY(30px);
     }
-    to {
+    to { 
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-.login-card {
-    animation: slideUp 0.6s ease-out;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .molecular-viewer {
+        min-height: 300px;
+    }
+    
+    .chat-container {
+        height: 400px;
+    }
 }
 
-.features-card {
-    animation: slideUp 0.8s ease-out;
+/* DNA/RNA Specific Styles */
+.dna-viewer {
+    background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
+    border-radius: 15px;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.sequence-display {
+    font-family: 'Courier New', monospace;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.nucleotide {
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.nucleotide.A { background-color: #ff6b6b; color: white; }
+.nucleotide.T, .nucleotide.U { background-color: #4ecdc4; color: white; }
+.nucleotide.G { background-color: #45b7d1; color: white; }
+.nucleotide.C { background-color: #f9ca24; color: black; }
+
+.gc-content-chart {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1rem;
 }
