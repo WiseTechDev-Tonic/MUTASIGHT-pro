@@ -13,7 +13,7 @@
                     <p class="text-muted">Ready to advance your drug discovery research?</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('molecular_input') }}" class="btn btn-gradient">
+                    <a href="{{ url_for('main.molecular_input') }}" class="btn btn-gradient">
                         <i data-feather="plus" class="me-2"></i>New Analysis
                     </a>
                     <button class="btn btn-outline-primary" onclick="toggleChatbot()">
@@ -37,25 +37,25 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <a href="{{ url_for('molecular_input') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <a href="{{ url_for('main.molecular_input') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
                                 <i data-feather="layers" class="mb-2" style="width: 24px; height: 24px;"></i>
                                 <span>Analyze Molecule</span>
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{{ url_for('dna_rna_analysis') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <a href="{{ url_for('main.dna_rna_analysis') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
                                 <i data-feather="git-branch" class="mb-2" style="width: 24px; height: 24px;"></i>
                                 <span>DNA/RNA Analysis</span>
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{{ url_for('research_papers') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <a href="{{ url_for('main.research_papers') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
                                 <i data-feather="book-open" class="mb-2" style="width: 24px; height: 24px;"></i>
                                 <span>Research Papers</span>
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{{ url_for('collaboration') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <a href="{{ url_for('main.collaboration') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
                                 <i data-feather="users" class="mb-2" style="width: 24px; height: 24px;"></i>
                                 <span>Collaborate</span>
                             </a>
@@ -70,7 +70,7 @@
                     <h5 class="mb-0">
                         <i data-feather="clock" class="me-2"></i>Recent Analysis
                     </h5>
-                    <a href="{{ url_for('experiment_tracker') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="{{ url_for('main.experiment_tracker') }}" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
                 <div class="card-body">
                     {% if recent_analyses %}
@@ -102,7 +102,7 @@
                             <i data-feather="flask" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
                             <h6 class="text-muted">No analyses yet</h6>
                             <p class="text-muted">Start by analyzing your first molecule or DNA sequence</p>
-                            <a href="{{ url_for('molecular_input') }}" class="btn btn-primary">
+                            <a href="{{ url_for('main.molecular_input') }}" class="btn btn-primary">
                                 <i data-feather="plus" class="me-2"></i>Start Analysis
                             </a>
                         </div>

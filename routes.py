@@ -50,7 +50,7 @@ def dashboard():
                          member_projects=member_projects,
                          recent_analyses=recent_analyses)
 
-@main_bp.route('/molecular-input')
+@main_bp.route('/molecular-input', methods=['GET', 'POST'])
 @login_required
 def molecular_input():
     """Display molecular input page"""
