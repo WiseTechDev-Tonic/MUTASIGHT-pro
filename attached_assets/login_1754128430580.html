@@ -3,17 +3,17 @@
 {% block title %}Login - MutaSight{% endblock %}
 
 {% block content %}
-<div class="container login-container">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-custom mt-5 login-card">
+            <div class="card shadow-custom mt-5">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
                         <h3 class="text-gradient">Welcome Back</h3>
                         <p class="text-muted">Sign in to continue your research</p>
                     </div>
                     
-                    <form method="POST" action="{{ url_for('auth.login') }}">
+                    <form method="POST" action="{{ url_for('login') }}">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="username" name="username" required>
                             <label for="username">
@@ -54,7 +54,7 @@
                     <div class="text-center">
                         <p class="text-muted mb-0">
                             Don't have an account?
-                            <a href="{{ url_for('auth.register') }}" class="text-decoration-none">
+                            <a href="{{ url_for('register') }}" class="text-decoration-none">
                                 Create one here
                             </a>
                         </p>
@@ -63,20 +63,20 @@
             </div>
             
             <!-- Features Preview -->
-            <div class="card mt-4 bg-secondary features-card shadow-custom">
+            <div class="card mt-4 bg-secondary">
                 <div class="card-body">
                     <h6 class="card-title text-center mb-3">What you'll get access to:</h6>
                     <div class="row text-center">
                         <div class="col-4">
-                            <i data-feather="hexagon" class="text-primary mb-2 features-icon"></i>
+                            <i data-feather="layers" class="text-primary mb-2"></i>
                             <small class="d-block text-muted">Molecular Analysis</small>
                         </div>
                         <div class="col-4">
-                            <i data-feather="git-branch" class="text-success mb-2 features-icon"></i>
-                            <small class="d-block text-muted">DNA/RNA Analysis</small>
+                            <i data-feather="shuffle" class="text-success mb-2"></i>
+                            <small class="d-block text-muted">AI Mutations</small>
                         </div>
                         <div class="col-4">
-                            <i data-feather="users" class="text-info mb-2 features-icon"></i>
+                            <i data-feather="users" class="text-info mb-2"></i>
                             <small class="d-block text-muted">Collaboration</small>
                         </div>
                     </div>
@@ -96,16 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!form.checkValidity()) {
             e.preventDefault();
             form.classList.add('was-validated');
-        } else {
-            // Show loading state
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Signing In...';
-            submitBtn.disabled = true;
-            
-            // Re-initialize feather icons for the new icon
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
         }
     });
 });

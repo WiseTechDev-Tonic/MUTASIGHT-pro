@@ -389,3 +389,98 @@ body {
     background-color: rgba(0, 123, 255, 0.1) !important;
     color: var(--primary-blue) !important;
 }
+
+/* Login Page Specific Styles */
+.btn-gradient {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #0056b3, #138496);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.btn-loading {
+    position: relative;
+}
+
+.btn-loading:disabled {
+    opacity: 0.7;
+}
+
+.form-floating > label {
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem;
+}
+
+.form-floating > label i[data-feather] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+/* Login container styling */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-main) 0%, #1a1d23 100%);
+    display: flex;
+    align-items: center;
+}
+
+/* Features preview card */
+.bg-secondary {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.features-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 8px auto;
+}
+
+/* Form validation styles */
+.was-validated .form-control:valid {
+    border-color: var(--success-green);
+    background-image: none;
+}
+
+.was-validated .form-control:invalid {
+    border-color: var(--danger-red);
+    background-image: none;
+}
+
+.invalid-feedback {
+    color: var(--danger-red);
+    font-size: 0.875rem;
+}
+
+/* Login page animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: slideUp 0.6s ease-out;
+}
+
+.features-card {
+    animation: slideUp 0.8s ease-out;
+}
